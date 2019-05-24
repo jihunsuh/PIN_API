@@ -108,7 +108,7 @@ class Board(Model):
         board = cls.create(title=title, comment=comment)
         board = board.save()
         return {'save': board}
-    
+
     # R read board
     @classmethod
     def select_board(cls, title):
@@ -119,7 +119,7 @@ class Board(Model):
                     'created_at': board.created_at}
         except cls.DoesNotExist:
             return {'exception': 'Your title does not exist in our Board title list'}
-    
+
     # U update board
     @classmethod
     def update_board(cls, title, comment):
@@ -190,7 +190,7 @@ class Pin(Model):
                     'board': title_confirm_board_null(pin)}
         except cls.DoesNotExist:
             return {'exception': 'Your name does not exist in our Pin name list'}
-    
+
     # U update pin
     @classmethod
     def update_pin(cls, name, img_url, description):
