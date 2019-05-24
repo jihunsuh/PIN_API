@@ -3,19 +3,6 @@ import json
 import model
 
 
-pin_fields = {
-    'name': fields.String,
-    'img_url': fields.String,
-    'description': fields.String,
-    'board': fields.String
-}
-
-board_fields = {
-    'title': fields.String,
-    'comment': fields.String,
-    'created_at': fields.String
-}
-
 
 # /hello Server 작동 확인
 class Home(Resource):
