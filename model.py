@@ -1,14 +1,8 @@
 from peewee import *
-from flask import Flask, g
-from flask_bcrypt import Bcrypt
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired
 import datetime
-import config
 
-app = Flask(__name__)
-bcrypt = Bcrypt(app)
+
 DB = SqliteDatabase('test_peewee.db')
-
 
 # 원본 board의 삭제를 감지해 자동으로 Pin의 board를 default로 업데이트해주는 함수
 def title_confirm_board_null(pin):
@@ -19,78 +13,6 @@ def title_confirm_board_null(pin):
         return 'default'
     else:
         return title
-
-
-# 주어진 password를 암호화
-def hash_password(password):
-    return bcrypt.generate_password_hash(password).decode('utf-8')
-
-
-# 주어진 password를 확인
-def verify_password(hashed_password, password):
-    return bcrypt.check_password_hash(hashed_password, password)
-
-
-# 사용자를 정의하는 User 모델 정의
-class User(Model):
-    id = CharField(unique=True)
-    email = CharField(unique=True)
-    password = CharField()
-
-    class Meta:
-        database = DB
-
-    # 사용자 정보로 User 생성
-    @classmethod
-    def create_user(cls, id, email, password, **kwargs):
-        email = email.lower()
-        try:
-            cls.select().where(
-                (cls.email == email) | (cls.id == id)
-            ).get()
-        except cls.DoesNotExist:
-            user = cls.create(id=id, email=email, password=hash_password(password))
-            user.save()
-            g.user = user
-            return {'id': user.id,
-                    'email': user.email,
-                    'password': user.password}
-        else:
-            return {'exception': 'this user already exists'}
-
-    @classmethod
-    def select_user(cls, id, password):
-        try:
-            user = cls().select().where(cls.id == id).get()
-        except cls.DoesNotExist:
-            return {'Exception': 'Your id does not exist in our User Id list'}
-        else:
-            if verify_password(user.password, password):
-                g.user = user
-
-                return {'id': user.id,
-                        'email': user.email,
-                        'password': password}
-            else:
-                return {'Exception': 'Your password does not match'}
-
-    # 인증에 쓰이는 Token을 발급
-    def generate_auth_token(self, expires=3600):
-        serializer = Serializer(config.SECRET_KEY, expires_in=expires)
-        return serializer.dumps({'id': self.id})
-
-    # Token 확인
-    @staticmethod
-    def verify_auth_token(token):
-        serializer = Serializer(config.SECRET_KEY)
-        try:
-            data = serializer.loads(token)
-        except SignatureExpired:
-            return None
-        except BadSignature:
-            return None
-        user = User.select().where(User.id == data['id']).get()
-        return user
 
 
 # Pin을 모아두는 Board 모델 정의
@@ -119,7 +41,7 @@ class Board(Model):
                     'created_at': board.created_at}
         except cls.DoesNotExist:
             return {'exception': 'Your title does not exist in our Board title list'}
-    
+        
     # U update board
     @classmethod
     def update_board(cls, title, comment):
@@ -190,7 +112,7 @@ class Pin(Model):
                     'board': title_confirm_board_null(pin)}
         except cls.DoesNotExist:
             return {'exception': 'Your name does not exist in our Pin name list'}
-    
+        
     # U update pin
     @classmethod
     def update_pin(cls, name, img_url, description):
