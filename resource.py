@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse, marshal_with, fields
-from flask import jsonify, make_response, Response
-import json
+from flask import jsonify, make_response, g
+from auth import basic_auth, token_auth
 import model
 
 
@@ -17,6 +17,18 @@ class Home(Resource):
 
     def post(self):
         return make_response(jsonify({'message': 'hello, World!'}), 200)
+
+
+# /token token 기반 인증 확인
+class AuthAndToken(Resource):
+    @basic_auth.login_required
+    def get(self):
+        token = g.user.generate_auth_token()
+        return make_response(jsonify({'token': token.decode('ascii')}), 200)
+
+    @basic_auth.login_required
+    def post(self):
+        return make_response(jsonify({'data': 'Hello, %s!' % g.user.id}), 200)
 
 
 # /user
