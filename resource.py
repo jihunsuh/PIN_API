@@ -219,9 +219,9 @@ class Board(Resource):
             get_title = args['title']
             get_comment = args['comment']
             board = model.Board.create_board(title=get_title, comment=get_comment)
-            return json.dumps(board)
+            return jsonify(board), 200
         except Exception as e:
-            return json.dumps({'exception': str(e)})
+            return jsonify({'Exception': str(e)}), 409
 
     # R 주어진 title을 가진 Board를 가져오기
     def get(self):
@@ -237,9 +237,11 @@ class Board(Resource):
             args = parser.parse_args()
             get_title = args['title']
             board = model.Board.select_board(title=get_title)
-            return json.dumps(board)
+            if board is None:
+                return jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400
+            return jsonify(board), 200
         except Exception as e:
-            return json.dumps({'exception': str(e)})
+            return jsonify({'Exception': str(e)}), 409
 
     # U 주어진 title을 가진 Board를 업데이트
     def put(self):
@@ -263,9 +265,11 @@ class Board(Resource):
             get_title = args['title']
             get_comment = args['comment']
             board = model.Board.update_board(title=get_title, comment=get_comment)
-            return json.dumps(board)
+            if board is None:
+                return jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400
+            return jsonify(board), 200
         except Exception as e:
-            return json.dumps({'exception': str(e)})
+            return jsonify({'Exception': str(e)}), 409
 
     # D 주어진 name을 가진 Board를 삭제
     def delete(self):
@@ -282,9 +286,11 @@ class Board(Resource):
             args = parser.parse_args()
             get_title = args['title']
             board = model.Board.delete_board(title=get_title)
-            return json.dumps(board)
+            if board is None:
+                return jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400
+            return jsonify(board), 200
         except Exception as e:
-            return json.dumps({'exception': str(e)})
+            return jsonify({'Exception': str(e)}), 409
 
 
 # /board/list
