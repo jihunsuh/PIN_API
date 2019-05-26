@@ -1,7 +1,15 @@
 from peewee import *
+import pymysql.cursors
+from userlogic import User
 import datetime
 
 DB = SqliteDatabase('test_peewee.db')
+# connection = pymysql.connect(host='127.0.0.1',
+#                              user='root',
+#                              password='root',
+#                              db='test_mysql',
+#                              charset='UTF-8',
+#                              cursorclass=pymysql.cursors.DictCursor)
 
 
 # 원본 board의 삭제를 감지해 자동으로 Pin의 board를 default로 업데이트해주는 함수
@@ -91,15 +99,14 @@ class Pin(Model):
     @classmethod
     def create_pin(cls, name, img_url, description, board):
         # 입력된 board가 DB 안의 board 안에 있는지 확인
-        boardlist = Board.select()
-        if 'default' not in [board.title for board in boardlist]:
-            Board.create_board(title='default', comment='default')
-        if board in [board.title for board in boardlist]:
+        try:
+            get_board = Board.select().where(title=board).get()
+        except Board.DoesNotExist:
+            return None
+        else:
             pin = cls.create(name=name, img_url=img_url, description=description, board=board)
             pin = pin.save()
             return {'save': pin}
-        else:
-            return {'Exception': 'Your title does not exist in our board list'}
 
     # R read pin
     @classmethod
