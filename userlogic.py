@@ -10,6 +10,7 @@ import config
 bcrypt = Bcrypt(app)
 DB = SqliteDatabase('test_peewee.db')
 
+
 # 사용자를 정의하는 User 모델 정의
 class User(Model):
     id = CharField(unique=True)
@@ -53,7 +54,6 @@ class User(Model):
                         'password': password}
             else:
                 return {'Exception': 'Your password does not match'}
-
 
     # 인증에 쓰이는 Token을 발급
     def generate_auth_token(self, expires=3600):
