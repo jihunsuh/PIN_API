@@ -1,4 +1,5 @@
 from flask_restful import Resource, reqparse, marshal_with, fields
+from flask import jsonify
 import json
 import model
 
@@ -12,10 +13,10 @@ class Home(Resource):
             args = parser.parse_args()
             return json.dumps(args['name'])
         except Exception as e:
-            return json.dumps(str(e))
+            return jsonify({'Exception': str(e)}), 409
 
     def post(self):
-        return json.dumps({'message': 'hello, World!'})
+        return jsonify({'message': 'hello, World!'}), 200
 
 
 # /user
@@ -41,9 +42,9 @@ class User(Resource):
             get_email = args['email']
             get_password = args['password']
             user = model.User.create_user(id=get_id, email=get_email, password=get_password)
-            return json.dumps(user)
+            return jsonify(user), 201
         except Exception as e:
-            raise Exception(e)
+            return jsonify({'Exception': str(e)}), 409
 
 
     def get(self):
@@ -61,9 +62,9 @@ class User(Resource):
             get_id = args['id']
             get_password = args['password']
             user = model.User.select_user(id=get_id, password=get_password)
-            return user
+            return jsonify(user), 200
         except Exception as e:
-            return {'status': str(e)}
+            return jsonify({'Exception': str(e)}), 409
 
 
 # /pin
@@ -100,9 +101,11 @@ class Pin(Resource):
             get_description = args['description']
             get_board = args['board']
             pin = model.Pin.create_pin(name=get_name, img_url=get_img_url, description=get_description, board=get_board)
-            return json.dumps(pin)
+            if pin is None:
+                return jsonify({'Exception': 'Your board does not exist in our Board title list'}), 400
+            return jsonify(pin), 200
         except Exception as e:
-            return json.dumps({'exception': str(e)})
+            return jsonify({'Exception': str(e)}), 409
 
     # R 주어진 name을 가진 Pin을 가져오기
     def get(self):
@@ -118,9 +121,11 @@ class Pin(Resource):
             args = parser.parse_args()
             get_name = args['name']
             pin = model.Pin.select_pin(name=get_name)
-            return json.dumps(pin)
+            if pin is None:
+                return jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400
+            return jsonify(pin), 200
         except Exception as e:
-            return json.dumps({'Exception': str(e)})
+            return jsonify({'Exception': str(e)}), 409
 
     # U 주어진 name을 가진 Pin을 업데이트
     def put(self):
@@ -152,9 +157,11 @@ class Pin(Resource):
             get_img_url = args['img_url']
             get_description = args['description']
             pin = model.Pin.update_pin(name=get_name, img_url=get_img_url, description=get_description)
-            return json.dumps(pin)
+            if pin is None:
+                return jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400
+            return jsonify(pin), 200
         except Exception as e:
-            return json.dumps({'exception': str(e)})
+            return jsonify({'Exception': str(e)}), 409
 
     # D 주어진 name을 가진 Pin을 삭제
     def delete(self):
@@ -170,16 +177,22 @@ class Pin(Resource):
             args = parser.parse_args()
             get_name = args['name']
             pin = model.Pin.delete_pin(name=get_name)
-            return json.dumps(pin)
+            if pin is None:
+                return jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400
+            return jsonify(pin), 200
         except Exception as e:
-            return json.dumps({'Exception': str(e)})
+            return jsonify({'Exception': str(e)}), 409
 
 
 # /pin/list
 class PinList(Resource):
     # 모든 Pin들을 가져오기
     def post(self):
-        return model.Pin.select_pin_list()
+        try:
+            pin_list = model.Pin.select_pin_list()
+            return jsonify(pin_list)
+        except Exception as e:
+            return jsonify({'Exception': str(e)}), 409
 
 
 # /board
@@ -278,4 +291,8 @@ class Board(Resource):
 class BoardList(Resource):
     # 모든 Board들을 가져오기
     def post(self):
-        return model.Board.select_board_list()
+        try:
+            board_list = model.Board.select_board_list()
+            return jsonify(board_list)
+        except Exception as e:
+            return jsonify({'Exception': str(e)}), 409

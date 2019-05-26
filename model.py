@@ -118,7 +118,7 @@ class Pin(Model):
                     'description': pin.description,
                     'board': title_confirm_board_null(pin)}
         except cls.DoesNotExist:
-            return {'exception': 'Your name does not exist in our Pin name list'}
+            return None
 
     # U update pin
     @classmethod
