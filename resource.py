@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse, marshal_with, fields
-from flask import jsonify
+from flask import jsonify, make_response, Response
 import json
 import model
 
@@ -11,12 +11,12 @@ class Home(Resource):
             parser = reqparse.RequestParser()
             parser.add_argument('name', required=True, type=str, help='give us right name')
             args = parser.parse_args()
-            return json.dumps(args['name'])
+            return make_response(args['name'], 200)
         except Exception as e:
-            return jsonify({'Exception': str(e)}), 409
+            return make_response(jsonify({'Exception': str(e)}), 409)
 
     def post(self):
-        return jsonify({'message': 'hello, World!'}), 200
+        return make_response(jsonify({'message': 'hello, World!'}), 200)
 
 
 # /user
@@ -42,10 +42,9 @@ class User(Resource):
             get_email = args['email']
             get_password = args['password']
             user = model.User.create_user(id=get_id, email=get_email, password=get_password)
-            return jsonify(user), 201
+            return make_response(jsonify(user), 201)
         except Exception as e:
-            return jsonify({'Exception': str(e)}), 409
-
+            return make_response(jsonify({'Exception': str(e)}), 409)
 
     def get(self):
         try:
@@ -62,9 +61,9 @@ class User(Resource):
             get_id = args['id']
             get_password = args['password']
             user = model.User.select_user(id=get_id, password=get_password)
-            return jsonify(user), 200
+            return make_response(jsonify(user), 200)
         except Exception as e:
-            return jsonify({'Exception': str(e)}), 409
+            return make_response(jsonify({'Exception': str(e)}), 409)
 
 
 # /pin
@@ -102,10 +101,10 @@ class Pin(Resource):
             get_board = args['board']
             pin = model.Pin.create_pin(name=get_name, img_url=get_img_url, description=get_description, board=get_board)
             if pin is None:
-                return jsonify({'Exception': 'Your board does not exist in our Board title list'}), 400
-            return jsonify(pin), 200
+                return make_response(jsonify({'Exception': 'Your board does not exist in our Board title list'}), 400)
+            return make_response(jsonify(pin), 200)
         except Exception as e:
-            return jsonify({'Exception': str(e)}), 409
+            return make_response(jsonify({'Exception': str(e)}), 409)
 
     # R 주어진 name을 가진 Pin을 가져오기
     def get(self):
@@ -122,10 +121,10 @@ class Pin(Resource):
             get_name = args['name']
             pin = model.Pin.select_pin(name=get_name)
             if pin is None:
-                return jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400
-            return jsonify(pin), 200
+                return make_response({'Exception': 'Your name does not exist in our Pin name list'}, 400)
+            return make_response(jsonify(pin), 200)
         except Exception as e:
-            return jsonify({'Exception': str(e)}), 409
+            return make_response(jsonify({'Exception': str(e)}), 409)
 
     # U 주어진 name을 가진 Pin을 업데이트
     def put(self):
@@ -158,10 +157,10 @@ class Pin(Resource):
             get_description = args['description']
             pin = model.Pin.update_pin(name=get_name, img_url=get_img_url, description=get_description)
             if pin is None:
-                return jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400
-            return jsonify(pin), 200
+                return make_response(jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400)
+            return make_response(jsonify(pin), 200)
         except Exception as e:
-            return jsonify({'Exception': str(e)}), 409
+            return make_response(jsonify({'Exception': str(e)}), 409)
 
     # D 주어진 name을 가진 Pin을 삭제
     def delete(self):
@@ -178,10 +177,10 @@ class Pin(Resource):
             get_name = args['name']
             pin = model.Pin.delete_pin(name=get_name)
             if pin is None:
-                return jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400
-            return jsonify(pin), 200
+                return make_response(jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400)
+            return make_response(jsonify(pin), status=200)
         except Exception as e:
-            return jsonify({'Exception': str(e)}), 409
+            return make_response(jsonify({'Exception': str(e)}), status=409)
 
 
 # /pin/list
@@ -190,9 +189,9 @@ class PinList(Resource):
     def post(self):
         try:
             pin_list = model.Pin.select_pin_list()
-            return jsonify(pin_list)
+            return make_response(jsonify(pin_list), 200)
         except Exception as e:
-            return jsonify({'Exception': str(e)}), 409
+            return make_response(jsonify({'Exception': str(e)}), 409)
 
 
 # /board
@@ -219,9 +218,9 @@ class Board(Resource):
             get_title = args['title']
             get_comment = args['comment']
             board = model.Board.create_board(title=get_title, comment=get_comment)
-            return jsonify(board), 200
+            return make_response(jsonify(board), 00)
         except Exception as e:
-            return jsonify({'Exception': str(e)}), 409
+            return make_response(jsonify({'Exception': str(e)}), 409)
 
     # R 주어진 title을 가진 Board를 가져오기
     def get(self):
@@ -238,10 +237,10 @@ class Board(Resource):
             get_title = args['title']
             board = model.Board.select_board(title=get_title)
             if board is None:
-                return jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400
-            return jsonify(board), 200
+                return make_response(jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400)
+            return make_response(jsonify(board), 200)
         except Exception as e:
-            return jsonify({'Exception': str(e)}), 409
+            return make_response(jsonify({'Exception': str(e)}), 409)
 
     # U 주어진 title을 가진 Board를 업데이트
     def put(self):
@@ -266,10 +265,10 @@ class Board(Resource):
             get_comment = args['comment']
             board = model.Board.update_board(title=get_title, comment=get_comment)
             if board is None:
-                return jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400
-            return jsonify(board), 200
+                return make_response(jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400)
+            return make_response(jsonify(board), 200)
         except Exception as e:
-            return jsonify({'Exception': str(e)}), 409
+            return make_response(jsonify({'Exception': str(e)}), 409)
 
     # D 주어진 name을 가진 Board를 삭제
     def delete(self):
@@ -287,10 +286,10 @@ class Board(Resource):
             get_title = args['title']
             board = model.Board.delete_board(title=get_title)
             if board is None:
-                return jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400
-            return jsonify(board), 200
+                return make_response(jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400)
+            return make_response(jsonify(board), 200)
         except Exception as e:
-            return jsonify({'Exception': str(e)}), 409
+            return make_response(jsonify({'Exception': str(e)}), 409)
 
 
 # /board/list
@@ -299,6 +298,6 @@ class BoardList(Resource):
     def post(self):
         try:
             board_list = model.Board.select_board_list()
-            return jsonify(board_list)
+            return make_response(jsonify(board_list), 200)
         except Exception as e:
-            return jsonify({'Exception': str(e)}), 409
+            return make_response(jsonify({'Exception': str(e)}), 409)
