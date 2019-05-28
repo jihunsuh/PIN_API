@@ -43,6 +43,7 @@ class User(Resource):
             if get_id is None or get_password is None:
                 return make_response(jsonify({'Exception': 'You should give us id and password'}), 400)
             user = model.User.create_user(id=get_id, email=get_email, password=get_password)
+            model.User.generate_auth_token()
             return make_response(jsonify(user), 201)
         except Exception as e:
             return make_response(jsonify({'Exception': str(e)}), 409)
