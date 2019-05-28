@@ -22,6 +22,16 @@ def title_confirm_board_null(pin):
     else:
         return title
 
+# DB에 접속할 때 default Board를 자동으로 생성해주는 함수
+def create_default():
+    try:
+        get_Board = Board.select().where(Board.title=='default').get()
+    except Board.DoesNotExist:
+        Board.create_board('default', 'default')
+        return None
+    else:
+        return None
+
 
 # Pin을 모아두는 Board 모델 정의
 class Board(Model):
@@ -122,24 +132,30 @@ class Pin(Model):
 
     # U update pin
     @classmethod
-    def update_pin(cls, name, img_url, description):
-        # img_url의 입력값이 들어오지 않았을 때 img_url을 기존 값으로 설정
-        if img_url == 'default' or img_url is None:
-            img_url = cls.get(cls.name == name).img_url
-        # description의 입력값이 들어오지 않았을 때 description을 기존 값으로 설정
-        if description == 'default' or description is None:
-            description = cls.get(cls.name == name).description
-
+    def update_pin(cls, name, img_url, description, board):
+        # 입력된 board가 존재하는지, 입력된 name을 가진 pin이 존재하는지 확인
         try:
-            pin = cls().update(img_url=img_url, description=description).where(cls.name == name)
+            get_board = Board.select().where(Board.title == board).get()
+            get_pin = Pin.get(cls.name == name)
+        except Board.DoesNotExist:
+            return 0
+        except Pin.DoesNotExist:
+            return 1
+        else:
+            # img_url의 입력값이 들어오지 않았을 때 img_url을 기존 값으로 설정
+            if img_url == 'default' or img_url is None:
+                img_url = cls.get(cls.name == name).img_url
+            # description의 입력값이 들어오지 않았을 때 description을 기존 값으로 설정
+            if description == 'default' or description is None:
+                description = cls.get(cls.name == name).description
+            pin = cls().update(img_url=img_url, description=description, board=board).where(cls.name == name)
             pin.execute()
-            pin = cls.get(cls.name == name)
+            pin = get_pin
             return {'name': pin.name,
                     'img_url': pin.img_url,
                     'description': pin.description,
                     'board': title_confirm_board_null(pin)}
-        except cls.DoesNotExist:
-            return {'exception': 'Your name does not exist in our Pin name list'}
+
 
     # D delete pin
     @classmethod
@@ -165,4 +181,5 @@ class Pin(Model):
 def initialize():
     DB.connect()
     DB.create_tables([Board, Pin], safe=True)
+    create_default()
     DB.close()
