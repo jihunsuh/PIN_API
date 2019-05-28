@@ -36,24 +36,12 @@ class User(Resource):
     # 입력한 정보로 유저 생성
     def post(self):
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument(
-                'id',
-                type=str
-            )
-            parser.add_argument(
-                'email',
-                type=str
-            )
-            parser.add_argument(
-                'password',
-                type=str
-            )
-            args = parser.parse_args()
             args = request.args.to_dict()
             get_id = args['id']
-            get_email = args['email']
+            get_email = args.get('email', 'default')
             get_password = args['password']
+            if get_id is None or get_password is None:
+                return make_response(jsonify({'Exception': 'You should give us id and password'}), 400)
             user = model.User.create_user(id=get_id, email=get_email, password=get_password)
             return make_response(jsonify(user), 201)
         except Exception as e:
@@ -61,18 +49,11 @@ class User(Resource):
 
     def get(self):
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument(
-                'id',
-                type=str
-            )
-            parser.add_argument(
-                'password',
-                type=str
-            )
-            args = parser.parse_args()
+            args = request.args.to_dict()
             get_id = args['id']
             get_password = args['password']
+            if get_id is None or get_password is None:
+                return make_response(jsonify({'Exception': 'You should give us id and password'}), 400)
             user = model.User.select_user(id=get_id, password=get_password)
             return make_response(jsonify(user), 200)
         except Exception as e:
