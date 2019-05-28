@@ -201,8 +201,10 @@ class Board(Resource):
             args = request.args.to_dict()
             get_title = args.get('title', None)
             board = model.Board.delete_board(title=get_title)
-            if board is None:
+            if board == 0:
                 return make_response(jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400)
+            elif board == 1:
+                return make_response(jsonify({'Exception': 'You cannot delete default board'}), 400)
             return make_response(jsonify(board), 200)
         except Exception as e:
             return make_response(jsonify({'Exception': str(e)}), 409)
