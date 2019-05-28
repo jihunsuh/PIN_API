@@ -1,5 +1,5 @@
-from flask_restful import Resource, reqparse, marshal_with, fields
-from flask import jsonify, make_response, g
+from flask_restful import Resource, reqparse
+from flask import jsonify, make_response, g, request
 from auth import basic_auth, token_auth
 import model
 
@@ -50,6 +50,7 @@ class User(Resource):
                 type=str
             )
             args = parser.parse_args()
+            args = request.args.to_dict()
             get_id = args['id']
             get_email = args['email']
             get_password = args['password']
@@ -83,34 +84,13 @@ class Pin(Resource):
     # C 입력한 정보로 새 Pin을 만들어 DB 안에 삽입
     def post(self):
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument(
-                'name',
-                type=str,
-                help='give me right name'
-            )
-            parser.add_argument(
-                'img_url',
-                type=str,
-                help='give me right url'
-            )
-            parser.add_argument(
-                'description',
-                type=str,
-                default='default',
-                help='give me right description'
-            )
-            parser.add_argument(
-                'board',
-                type=str,
-                help='give me right board',
-                default='default'
-            )
-            args = parser.parse_args()
-            get_name = args['name']
-            get_img_url = args['img_url']
-            get_description = args['description']
-            get_board = args['board']
+            args = request.args.to_dict()
+            get_name = args.get('name', None)
+            get_img_url = args.get('img_url', None)
+            get_description = args.get('description', 'default')
+            get_board = args.get('board', 'default')
+            if get_name is None or get_img_url is None:
+                return make_response(jsonify({'Exception': 'You should give us name and img_url'}), 400)
             pin = model.Pin.create_pin(name=get_name, img_url=get_img_url, description=get_description, board=get_board)
             if pin is None:
                 return make_response(jsonify({'Exception': 'Your board does not exist in our Board title list'}), 400)
@@ -121,16 +101,8 @@ class Pin(Resource):
     # R 주어진 name을 가진 Pin을 가져오기
     def get(self):
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument(
-                'name',
-                type=str,
-                required=True,
-                nullable=False,
-                help='give me right name'
-            )
-            args = parser.parse_args()
-            get_name = args['name']
+            args = request.args.to_dict()
+            get_name = args.get('name', None)
             pin = model.Pin.select_pin(name=get_name)
             if pin is None:
                 return make_response(jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400)
@@ -141,35 +113,18 @@ class Pin(Resource):
     # U 주어진 name을 가진 Pin을 업데이트
     def put(self):
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument(
-                'name',
-                type=str,
-                required=True,
-                nullable=False,
-                help='give me right name'
-            )
-            parser.add_argument(
-                'img_url',
-                type=str,
-                required=False,
-                default='default',
-                help='give me right url'
-            )
-            parser.add_argument(
-                'description',
-                type=str,
-                required=False,
-                default='default',
-                help='give me right url'
-            )
-            args = parser.parse_args()
-            get_name = args['name']
-            get_img_url = args['img_url']
-            get_description = args['description']
+            args = request.args.to_dict()
+            get_name = args.get('name', None)
+            get_img_url = args.get('img_url', None)
+            get_description = args.get('description', 'default')
+            get_board = args.get('board', 'default')
+            if get_name is None or get_img_url is None:
+                return make_response(jsonify({'Exception': 'You should give us name or img_url'}), 400)
             pin = model.Pin.update_pin(name=get_name, img_url=get_img_url, description=get_description)
-            if pin is None:
-                return make_response(jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400)
+            if pin == 0:
+                pin = {'Exception': 'Your board does not exist in our Board title list'}
+            elif pin == 1:
+                pin = {'Exception': 'Your name does not exist in our Pin name list'}
             return make_response(jsonify(pin), 200)
         except Exception as e:
             return make_response(jsonify({'Exception': str(e)}), 409)
@@ -177,16 +132,8 @@ class Pin(Resource):
     # D 주어진 name을 가진 Pin을 삭제
     def delete(self):
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument(
-                'name',
-                type=str,
-                required=True,
-                nullable=False,
-                help='give me right name'
-            )
-            args = parser.parse_args()
-            get_name = args['name']
+            args = request.args.to_dict()
+            get_name = args.get('name', None)
             pin = model.Pin.delete_pin(name=get_name)
             if pin is None:
                 return make_response(jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400)
@@ -211,24 +158,11 @@ class Board(Resource):
     # C 입력한 정보로 새 Board를 만들어 DB 안에 삽입
     def post(self):
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument(
-                'title',
-                type=str,
-                required=True,
-                nullable=False,
-                default='default',
-                help='No title provided'
-            )
-            parser.add_argument(
-                'comment',
-                type=str,
-                default='',
-                help='No comment provided'
-            )
-            args = parser.parse_args()
-            get_title = args['title']
-            get_comment = args['comment']
+            args = request.args.to_dict()
+            get_title = args.get('title', None)
+            get_comment = args.get('comment', None)
+            if get_title is None or get_comment is None:
+                return make_response(jsonify({'Exception': 'You should give us title and comment'}), 400)
             board = model.Board.create_board(title=get_title, comment=get_comment)
             return make_response(jsonify(board), 200)
         except Exception as e:
@@ -237,16 +171,8 @@ class Board(Resource):
     # R 주어진 title을 가진 Board를 가져오기
     def get(self):
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument(
-                'title',
-                type=str,
-                required=True,
-                nullable=False,
-                help='No title provided'
-            )
-            args = parser.parse_args()
-            get_title = args['title']
+            args = request.args.to_dict()
+            get_title = args.get('title', None)
             board = model.Board.select_board(title=get_title)
             if board is None:
                 return make_response(jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400)
@@ -257,24 +183,11 @@ class Board(Resource):
     # U 주어진 title을 가진 Board를 업데이트
     def put(self):
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument(
-                'title',
-                type=str,
-                required=True,
-                nullable=False,
-                default='default',
-                help='No title provided'
-            )
-            parser.add_argument(
-                'comment',
-                type=str,
-                default='',
-                help='No comment provided'
-            )
-            args = parser.parse_args()
-            get_title = args['title']
-            get_comment = args['comment']
+            args = request.args.to_dict()
+            get_title = args.get('title', None)
+            get_comment = args.get('comment', None)
+            if get_title is None or get_comment is None:
+                return make_response(jsonify({'Exception': 'You should give us title and comment'}), 400)
             board = model.Board.update_board(title=get_title, comment=get_comment)
             if board is None:
                 return make_response(jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400)
@@ -285,17 +198,8 @@ class Board(Resource):
     # D 주어진 name을 가진 Board를 삭제
     def delete(self):
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument(
-                'title',
-                type=str,
-                required=True,
-                nullable=False,
-                default='default',
-                help='No title provided'
-            )
-            args = parser.parse_args()
-            get_title = args['title']
+            args = request.args.to_dict()
+            get_title = args.get('title', None)
             board = model.Board.delete_board(title=get_title)
             if board is None:
                 return make_response(jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400)

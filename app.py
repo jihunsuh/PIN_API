@@ -10,10 +10,9 @@ app.secret_key = config.SECRET_KEY
 api = Api(app)
 
 
-api.add_resource(resource.Home, '/home')
 api.add_resource(resource.AuthAndToken, '/token')
 api.add_resource(resource.User, '/user')
-api.add_resource(resource.Home, '/hello')
+api.add_resource(resource.Hello, '/hello')
 api.add_resource(resource.Pin, '/pin')
 api.add_resource(resource.Board, '/board')
 api.add_resource(resource.PinList, '/pin/list')
