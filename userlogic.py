@@ -1,12 +1,11 @@
 from peewee import Model, CharField, SqliteDatabase
-from flask import g
+from flask import g, Flask
 from flask_bcrypt import Bcrypt
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired
 
-from app import app
 import config
 
-
+app = Flask(__name__)
 bcrypt = Bcrypt(app)
 DB = SqliteDatabase('test_peewee.db')
 

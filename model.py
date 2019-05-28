@@ -1,6 +1,6 @@
 from peewee import *
 import pymysql.cursors
-# from userlogic import User
+from userlogic import User
 import datetime
 
 DB = SqliteDatabase('test_peewee.db')
@@ -184,6 +184,6 @@ class Pin(Model):
 
 def initialize():
     DB.connect()
-    DB.create_tables([Board, Pin], safe=True)
+    DB.create_tables([User, Board, Pin], safe=True)
     create_default()
     DB.close()
