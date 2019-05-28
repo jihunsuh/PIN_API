@@ -78,10 +78,13 @@ class Board(Model):
     def delete_board(cls, title):
         try:
             board = cls().get(cls.title == title)
+        except cls.DoesNotExist:
+            return 0
+        else:
+            if title == 'default':
+                return 1
             board.delete_instance()
             return {'status': 'success'}
-        except cls.DoesNotExist:
-            return None
 
     @classmethod
     def select_board_list(cls):
@@ -162,10 +165,11 @@ class Pin(Model):
     def delete_pin(cls, name):
         try:
             pin = cls().get(cls.name == name)
+        except cls.DoesNotExist:
+            return None
+        else:
             pin.delete_instance()
             return {'status': 'success'}
-        except cls.DoesNotExist:
-            return {'exception': 'Your name does not exist in our Pin name list'}
 
     @classmethod
     def select_pin_list(cls):
