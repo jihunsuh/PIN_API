@@ -146,10 +146,10 @@ class Pin(Model):
             return 1
         else:
             # img_url의 입력값이 들어오지 않았을 때 img_url을 기존 값으로 설정
-            if img_url == 'default' or img_url is None:
+            if img_url is None:
                 img_url = cls.get(cls.name == name).img_url
             # description의 입력값이 들어오지 않았을 때 description을 기존 값으로 설정
-            if description == 'default' or description is None:
+            if description is None:
                 description = cls.get(cls.name == name).description
             pin = cls().update(img_url=img_url, description=description, board=board).where(cls.name == name)
             pin.execute()
