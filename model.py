@@ -100,7 +100,7 @@ class Pin(Model):
     def create_pin(cls, name, img_url, description, board):
         # 입력된 board가 DB 안의 board 안에 있는지 확인
         try:
-            get_board = Board.select().where(title=board).get()
+            get_board = Board.select().where(Board.title == board).get()
         except Board.DoesNotExist:
             return None
         else:
@@ -124,10 +124,10 @@ class Pin(Model):
     @classmethod
     def update_pin(cls, name, img_url, description):
         # img_url의 입력값이 들어오지 않았을 때 img_url을 기존 값으로 설정
-        if img_url == 'default':
+        if img_url == 'default' or img_url is None:
             img_url = cls.get(cls.name == name).img_url
         # description의 입력값이 들어오지 않았을 때 description을 기존 값으로 설정
-        if description == 'default':
+        if description == 'default' or description is None:
             description = cls.get(cls.name == name).description
 
         try:

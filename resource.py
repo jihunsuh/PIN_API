@@ -5,13 +5,13 @@ import model
 
 
 # /hello Server 작동 확인
-class Home(Resource):
+class Hello(Resource):
     def get(self):
         try:
             parser = reqparse.RequestParser()
             parser.add_argument('name', required=True, type=str, help='give us right name')
             args = parser.parse_args()
-            return make_response(args['name'], 200)
+            return make_response(jsonify({'name': args['name']}), 200)
         except Exception as e:
             return make_response(jsonify({'Exception': str(e)}), 409)
 
@@ -133,7 +133,7 @@ class Pin(Resource):
             get_name = args['name']
             pin = model.Pin.select_pin(name=get_name)
             if pin is None:
-                return make_response({'Exception': 'Your name does not exist in our Pin name list'}, 400)
+                return make_response(jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400)
             return make_response(jsonify(pin), 200)
         except Exception as e:
             return make_response(jsonify({'Exception': str(e)}), 409)
@@ -190,9 +190,9 @@ class Pin(Resource):
             pin = model.Pin.delete_pin(name=get_name)
             if pin is None:
                 return make_response(jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400)
-            return make_response(jsonify(pin), status=200)
+            return make_response(jsonify(pin), 200)
         except Exception as e:
-            return make_response(jsonify({'Exception': str(e)}), status=409)
+            return make_response(jsonify({'Exception': str(e)}), 409)
 
 
 # /pin/list
@@ -230,7 +230,7 @@ class Board(Resource):
             get_title = args['title']
             get_comment = args['comment']
             board = model.Board.create_board(title=get_title, comment=get_comment)
-            return make_response(jsonify(board), 00)
+            return make_response(jsonify(board), 200)
         except Exception as e:
             return make_response(jsonify({'Exception': str(e)}), 409)
 
