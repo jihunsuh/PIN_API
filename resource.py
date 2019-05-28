@@ -1,6 +1,7 @@
 from flask_restful import Resource, reqparse
 from flask import jsonify, make_response, g, request
-from auth import basic_auth, token_auth
+from auth import basic_auth
+import auth
 import model
 
 
