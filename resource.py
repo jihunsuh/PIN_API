@@ -38,13 +38,13 @@ class User(Resource):
     def post(self):
         try:
             args = request.args.to_dict()
-            get_id = args['id']
+            get_id = args.get('id', None)
             get_email = args.get('email', 'default')
             get_password = args['password']
             if get_id is None or get_password is None:
                 return make_response(jsonify({'Exception': 'You should give us id and password'}), 400)
             user = model.User.create_user(id=get_id, email=get_email, password=get_password)
-            model.User.generate_auth_token()
+            model.User.generate_auth_token(user)
             return make_response(jsonify(user), 201)
         except Exception as e:
             return make_response(jsonify({'Exception': str(e)}), 409)
@@ -52,8 +52,8 @@ class User(Resource):
     def get(self):
         try:
             args = request.args.to_dict()
-            get_id = args['id']
-            get_password = args['password']
+            get_id = args.get('id', default=None)
+            get_password = args('password', default=None)
             if get_id is None or get_password is None:
                 return make_response(jsonify({'Exception': 'You should give us id and password'}), 400)
             user = model.User.select_user(id=get_id, password=get_password)
@@ -103,7 +103,7 @@ class Pin(Resource):
             get_board = args.get('board', 'default')
             if get_name is None or get_img_url is None:
                 return make_response(jsonify({'Exception': 'You should give us name or img_url'}), 400)
-            pin = model.Pin.update_pin(name=get_name, img_url=get_img_url, description=get_description)
+            pin = model.Pin.update_pin(name=get_name, img_url=get_img_url, description=get_description, board=get_board)
             if pin == 0:
                 pin = {'Exception': 'Your board does not exist in our Board title list'}
             elif pin == 1:
