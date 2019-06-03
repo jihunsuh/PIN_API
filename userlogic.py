@@ -1,14 +1,12 @@
 from peewee import Model, CharField, SqliteDatabase
-from flask import g
-from flask_bcrypt import Bcrypt
+from flask import g, Flask
+from flask_bcrypt import check_password_hash, generate_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired
 
-from app import app
 import config
 
-
-bcrypt = Bcrypt(app)
 DB = SqliteDatabase('test_peewee.db')
+
 
 # 사용자를 정의하는 User 모델 정의
 class User(Model):
@@ -29,7 +27,7 @@ class User(Model):
             ).get()
         except cls.DoesNotExist:
             # 주어진 password를 bcrypt로 암호화
-            user = cls.create(id=id, email=email, password=bcrypt.generate_password_hash(password).decode('utf-8'))
+            user = cls.create(id=id, email=email, password=generate_password_hash(password).decode('utf-8'))
             user.save()
             g.user = user
             return {'id': user.id,
@@ -46,14 +44,13 @@ class User(Model):
             return {'Exception': 'Your id does not exist in our User Id list'}
         else:
             # 주어진 password를 확인
-            if bcrypt.check_password_hash(user.password, password):
+            if check_password_hash(user.password, password):
                 g.user = user
                 return {'id': user.id,
                         'email': user.email,
                         'password': password}
             else:
                 return {'Exception': 'Your password does not match'}
-
 
     # 인증에 쓰이는 Token을 발급
     def generate_auth_token(self, expires=3600):

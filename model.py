@@ -1,8 +1,15 @@
 from peewee import *
+import pymysql.cursors
+from userlogic import User
 import datetime
 
-
 DB = SqliteDatabase('test_peewee.db')
+# connection = pymysql.connect(host='127.0.0.1',
+#                              user='root',
+#                              password='root',
+#                              db='test_mysql',
+#                              charset='UTF-8',
+#                              cursorclass=pymysql.cursors.DictCursor)
 
 # 원본 board의 삭제를 감지해 자동으로 Pin의 board를 default로 업데이트해주는 함수
 def title_confirm_board_null(pin):
@@ -13,6 +20,16 @@ def title_confirm_board_null(pin):
         return 'default'
     else:
         return title
+
+# DB에 접속할 때 default Board를 자동으로 생성해주는 함수
+def create_default():
+    try:
+        get_Board = Board.select().where(Board.title=='default').get()
+    except Board.DoesNotExist:
+        Board.create_board('default', 'default')
+        return None
+    else:
+        return None
 
 
 # Pin을 모아두는 Board 모델 정의
@@ -40,8 +57,8 @@ class Board(Model):
                     'comment': board.comment,
                     'created_at': board.created_at}
         except cls.DoesNotExist:
-            return {'exception': 'Your title does not exist in our Board title list'}
-        
+            return None
+
     # U update board
     @classmethod
     def update_board(cls, title, comment):
@@ -53,17 +70,20 @@ class Board(Model):
                     'comment': update_result.comment,
                     'created_at': update_result.created_at}
         except cls.DoesNotExist:
-            return {'exception': 'Your title does not exist in our Board title list'}
+            return None
 
     # D delete board
     @classmethod
     def delete_board(cls, title):
         try:
             board = cls().get(cls.title == title)
+        except cls.DoesNotExist:
+            return 0
+        else:
+            if title == 'default':
+                return 1
             board.delete_instance()
             return {'status': 'success'}
-        except cls.DoesNotExist:
-            return {'exception': 'Your title does not exist in our Board title list'}
 
     @classmethod
     def select_board_list(cls):
@@ -91,15 +111,14 @@ class Pin(Model):
     @classmethod
     def create_pin(cls, name, img_url, description, board):
         # 입력된 board가 DB 안의 board 안에 있는지 확인
-        boardlist = Board.select()
-        if 'default' not in [board.title for board in boardlist]:
-            Board.create_board(title='default', comment='default')
-        if board in [board.title for board in boardlist]:
+        try:
+            get_board = Board.select().where(Board.title == board).get()
+        except Board.DoesNotExist:
+            return None
+        else:
             pin = cls.create(name=name, img_url=img_url, description=description, board=board)
             pin = pin.save()
             return {'save': pin}
-        else:
-            return {'Exception': 'Your title does not exist in our board list'}
 
     # R read pin
     @classmethod
@@ -111,38 +130,45 @@ class Pin(Model):
                     'description': pin.description,
                     'board': title_confirm_board_null(pin)}
         except cls.DoesNotExist:
-            return {'exception': 'Your name does not exist in our Pin name list'}
+            return None
         
     # U update pin
     @classmethod
-    def update_pin(cls, name, img_url, description):
-        # img_url의 입력값이 들어오지 않았을 때 img_url을 기존 값으로 설정
-        if img_url == 'default':
-            img_url = cls.get(cls.name == name).img_url
-        # description의 입력값이 들어오지 않았을 때 description을 기존 값으로 설정
-        if description == 'default':
-            description = cls.get(cls.name == name).description
-
+    def update_pin(cls, name, img_url, description, board):
+        # 입력된 board가 존재하는지, 입력된 name을 가진 pin이 존재하는지 확인
         try:
-            pin = cls().update(img_url=img_url, description=description).where(cls.name == name)
+            get_board = Board.select().where(Board.title == board).get()
+            get_pin = Pin.get(cls.name == name)
+        except Board.DoesNotExist:
+            return 0
+        except Pin.DoesNotExist:
+            return 1
+        else:
+            # img_url의 입력값이 들어오지 않았을 때 img_url을 기존 값으로 설정
+            if img_url is None:
+                img_url = cls.get(cls.name == name).img_url
+            # description의 입력값이 들어오지 않았을 때 description을 기존 값으로 설정
+            if description is None:
+                description = cls.get(cls.name == name).description
+            pin = cls().update(img_url=img_url, description=description, board=board).where(cls.name == name)
             pin.execute()
-            pin = cls.get(cls.name == name)
+            pin = get_pin
             return {'name': pin.name,
                     'img_url': pin.img_url,
                     'description': pin.description,
                     'board': title_confirm_board_null(pin)}
-        except cls.DoesNotExist:
-            return {'exception': 'Your name does not exist in our Pin name list'}
+
 
     # D delete pin
     @classmethod
     def delete_pin(cls, name):
         try:
             pin = cls().get(cls.name == name)
+        except cls.DoesNotExist:
+            return None
+        else:
             pin.delete_instance()
             return {'status': 'success'}
-        except cls.DoesNotExist:
-            return {'exception': 'Your name does not exist in our Pin name list'}
 
     @classmethod
     def select_pin_list(cls):
@@ -158,4 +184,5 @@ class Pin(Model):
 def initialize():
     DB.connect()
     DB.create_tables([User, Board, Pin], safe=True)
+    create_default()
     DB.close()

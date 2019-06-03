@@ -1,12 +1,12 @@
 from flask import g
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
-import model
+import userlogic
 
 basic_auth = HTTPBasicAuth()
 token_auth = HTTPTokenAuth()
 
 def get_users():
-    query = model.User.select()
+    query = userlogic.User.select()
     result = {}
     for user in query:
         result[user.id] = user.password
@@ -16,17 +16,17 @@ def get_users():
 @basic_auth.get_password
 def get_pw(username):
     if username in get_users():
-        return model.User.get(model.User.id == username)
+        return userlogic.User.get(userlogic.User.id == username)
     return None
 
 
 @basic_auth.verify_password
 def verify_password(id, password):
     try:
-        user = model.User.get(model.User.id == id)
-        if not model.verify_password(user.password, password):
+        user = userlogic.User.get(userlogic.User.id == id)
+        if not userlogic.verify_password(user.password, password):
             return False
-    except model.User.DoesNotExist:
+    except userlogic.User.DoesNotExist:
         return False
     else:
         g.user = user
@@ -35,8 +35,10 @@ def verify_password(id, password):
 
 @token_auth.verify_token
 def verify_token(token):
-    user = model.User.verify_auth_token(token)
+    user = userlogic.User.verify_auth_token(token)
     if user is not None:
         g.user = user
         return True
     return False
+
+
