@@ -1,3 +1,5 @@
 # binary
 .idea
 __pycache__
+# database
+*.db
