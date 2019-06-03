@@ -11,7 +11,6 @@ DB = SqliteDatabase('test_peewee.db')
 #                              charset='UTF-8',
 #                              cursorclass=pymysql.cursors.DictCursor)
 
-
 # 원본 board의 삭제를 감지해 자동으로 Pin의 board를 default로 업데이트해주는 함수
 def title_confirm_board_null(pin):
     try:
@@ -48,7 +47,7 @@ class Board(Model):
         board = cls.create(title=title, comment=comment)
         board = board.save()
         return {'save': board}
-
+    
     # R read board
     @classmethod
     def select_board(cls, title):
@@ -132,7 +131,7 @@ class Pin(Model):
                     'board': title_confirm_board_null(pin)}
         except cls.DoesNotExist:
             return None
-
+        
     # U update pin
     @classmethod
     def update_pin(cls, name, img_url, description, board):
