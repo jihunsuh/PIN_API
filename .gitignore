@@ -1,5 +1,9 @@
 # binary
 .idea
 __pycache__
+
 # database
 *.db
+
+# comfile
+.pyc
