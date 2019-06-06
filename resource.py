@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flask_restful import Resource, reqparse
 from flask import jsonify, make_response, g, request
 from auth import basic_auth
@@ -7,7 +8,7 @@ from userlogic import User
 
 
 # /hello Server 작동 확인
-class Hello(Resource):
+class HelloApi(Resource):
     def get(self):
         try:
             return jsonify({'name': request.args.get('name', 'default')}), 200
@@ -19,7 +20,7 @@ class Hello(Resource):
 
 
 # /token token 기반 인증 확인
-class AuthAndToken(Resource):
+class AuthAndTokenApi(Resource):
     @basic_auth.login_required
     def get(self):
         token = g.user.generate_auth_token()
@@ -31,7 +32,7 @@ class AuthAndToken(Resource):
 
 
 # /user
-class User(Resource):
+class UserApi(Resource):
     # 입력한 정보로 유저 생성
     def post(self):
         try:
@@ -41,7 +42,7 @@ class User(Resource):
             if get_id is None or get_password is None:
                 return make_response(jsonify({'Exception': 'You should give us id and password'}), 400)
             user = User.create_user(id=get_id, email=get_email, password=get_password)
-            User.generate_auth_token(user)
+            User.generate_auth_token(User.get(id=get_id))
             return make_response(jsonify(user), 201)
         except Exception as e:
             return make_response(jsonify({'Exception': str(e)}), 409)
@@ -49,7 +50,7 @@ class User(Resource):
     def get(self):
         try:
             get_id = request.args.get('id', default=None)
-            get_password = request.args('password', default=None)
+            get_password = request.args.get('password', default=None)
             if get_id is None or get_password is None:
                 return make_response(jsonify({'Exception': 'You should give us id and password'}), 400)
             user = User.select_user(id=get_id, password=get_password)
@@ -59,7 +60,7 @@ class User(Resource):
 
 
 # /pin
-class Pin(Resource):
+class PinApi(Resource):
     # C 입력한 정보로 새 Pin을 만들어 DB 안에 삽입
     def post(self):
         try:
@@ -118,7 +119,7 @@ class Pin(Resource):
 
 
 # /pin/list
-class PinList(Resource):
+class PinListApi(Resource):
     # 모든 Pin들을 가져오기
     def post(self):
         try:
@@ -129,7 +130,7 @@ class PinList(Resource):
 
 
 # /board
-class Board(Resource):
+class BoardApi(Resource):
     # C 입력한 정보로 새 Board를 만들어 DB 안에 삽입
     def post(self):
         try:
@@ -182,7 +183,7 @@ class Board(Resource):
 
 
 # /board/list
-class BoardList(Resource):
+class BoardListApi(Resource):
     # 모든 Board들을 가져오기
     def post(self):
         try:
