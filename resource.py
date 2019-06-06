@@ -84,7 +84,7 @@ class PinApi(Resource):
             pin = Pin.select_pin(name=get_name)
             if pin is None:
                 return make_response(jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400)
-            return make_response(jsonify(pin), 200)
+            return jsonify(pin), 200
         except Exception as e:
             return make_response(jsonify({'Exception': str(e)}), 409)
 
