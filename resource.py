@@ -16,7 +16,7 @@ class HelloApi(Resource):
             return make_response(jsonify({'Exception': str(e)}), 409)
 
     def post(self):
-        return make_response(jsonify({'Exception': str(e)}), 409)
+        return make_response(jsonify({'message': 'hello, World!'}), 200)
 
 
 # /token token 기반 인증 확인
