@@ -6,19 +6,15 @@ from userlogic import User
 basic_auth = HTTPBasicAuth()
 token_auth = HTTPTokenAuth()
 
-def get_users():
-    query = User.select()
-    result = {}
-    for user in query:
-        result[user.id] = user.password
-    return result
-
 
 @basic_auth.get_password
 def get_pw(username):
-    if username in get_users():
-        return User.get(User.id == username)
-    return None
+    try:
+        user = User.select().where(User.id == username).get()
+    except User.DoesNotExist:
+        return None
+    else:
+        return user
 
 
 @basic_auth.verify_password
