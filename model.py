@@ -18,7 +18,7 @@ def title_confirm_board_null(pin):
         title = pin.board.title
     except Exception as e:
         Pin.update(board='default').where(Pin.name == pin.name).execute()
-        return 'default'+str(e)
+        return 'default'
     else:
         return title
 
