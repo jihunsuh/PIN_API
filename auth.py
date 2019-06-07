@@ -38,4 +38,3 @@ def verify_token(token):
         return True
     return False
 
-

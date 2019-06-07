@@ -20,7 +20,7 @@ class User(Model):
 
     # 사용자 정보로 User 생성
     @classmethod
-    def create_user(cls, id, email, password, **kwargs):
+    def create_user(cls, id, email, password):
         email = email.lower()
         try:
             cls.select().where(

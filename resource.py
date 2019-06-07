@@ -2,7 +2,6 @@
 from flask_restful import Resource, reqparse
 from flask import jsonify, make_response, g, request
 from auth import basic_auth
-import auth
 from model import Pin, Board
 from userlogic import User
 
@@ -11,7 +10,7 @@ from userlogic import User
 class HelloApi(Resource):
     def get(self):
         try:
-            return jsonify({'name': request.args.get('name', 'default')}), 200
+            return jsonify({'name': request.args.get('name', '')}), 200
         except Exception as e:
             return make_response(jsonify({'Exception': str(e)}), 409)
 
@@ -115,7 +114,7 @@ class PinApi(Resource):
                 return make_response(jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400)
             return make_response(jsonify(pin), 200)
         except Exception as e:
-            return  make_response(jsonify({'Exception': str(e)}), 409)
+            return make_response(jsonify({'Exception': str(e)}), 409)
 
 
 # /pin/list
@@ -150,9 +149,9 @@ class BoardApi(Resource):
             board = Board.select_board(title=get_title)
             if board is None:
                 return make_response(jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400)
-            return  make_response(jsonify(board), 200)
+            return make_response(jsonify(board), 200)
         except Exception as e:
-            return  make_response(jsonify({'Exception': str(e)}), 409)
+            return make_response(jsonify({'Exception': str(e)}), 409)
 
     # U 주어진 title을 가진 Board를 업데이트
     def put(self):
@@ -190,4 +189,4 @@ class BoardListApi(Resource):
             board_list = Board.select_board_list()
             return make_response(jsonify(board_list), 200)
         except Exception as e:
-            return  make_response(jsonify({'Exception': str(e)}), 409)
+            return make_response(jsonify({'Exception': str(e)}), 409)
