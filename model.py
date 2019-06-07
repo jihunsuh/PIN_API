@@ -12,6 +12,7 @@ DB = SqliteDatabase('test_peewee.db')
 #                              charset='UTF-8',
 #                              cursorclass=pymysql.cursors.DictCursor)
 
+
 # 원본 board의 삭제를 감지해 자동으로 Pin의 board를 default로 업데이트해주는 함수
 def title_confirm_board_null(pin):
     try:
@@ -22,10 +23,11 @@ def title_confirm_board_null(pin):
     else:
         return title
 
+
 # DB에 접속할 때 default Board를 자동으로 생성해주는 함수
 def create_default():
     try:
-        get_Board = Board.select().where(Board.title == 'default').get()
+        get_board = Board.select().where(Board.title == 'default').get()
     except Board.DoesNotExist:
         Board.create_board('default', 'default')
 
