@@ -8,13 +8,12 @@ token_auth = HTTPTokenAuth()
 
 
 @basic_auth.get_password
-def get_pw(username):
+def get_password(username):
     try:
-        user = User.select().where(User.id == username).get()
+        password = User.select().where(User.id == username).get().password
+        return password
     except User.DoesNotExist:
         return None
-    else:
-        return user
 
 
 @basic_auth.verify_password
@@ -23,11 +22,10 @@ def verify_password(id, password):
         user = User.get(User.id == id)
         if not check_password_hash(user.password, password):
             return False
-    except User.DoesNotExist:
-        return False
-    else:
         g.user = user
         return True
+    except User.DoesNotExist:
+        return False
 
 
 @token_auth.verify_token

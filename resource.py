@@ -10,12 +10,12 @@ from userlogic import User
 class HelloApi(Resource):
     def get(self):
         try:
-            return make_response(jsonify({'name': request.args.get('name', '')}), 200)
+            return {'name': request.args.get('name', '')}, 200
         except Exception as e:
-            return make_response(jsonify({'Exception': str(e)}), 409)
+            return {'Exception': str(e)}, 409
 
     def post(self):
-        return make_response(jsonify({'message': 'hello, World!'}), 200)
+        return {'message': 'hello, World!'}, 200
 
 
 # /token token 기반 인증 확인
@@ -23,11 +23,11 @@ class AuthAndTokenApi(Resource):
     @basic_auth.login_required
     def get(self):
         token = g.user.generate_auth_token()
-        return make_response(jsonify({'token': token.decode('ascii')}), 200)
+        return {'token': token.decode('ascii')}, 200
 
     @basic_auth.login_required
     def post(self):
-        return make_response(jsonify({'data': 'Hello, %s!' % g.user.id}), 200)
+        return {'data': 'Hello, %s!' % g.user.id}, 200
 
 
 # /user
@@ -39,23 +39,23 @@ class UserApi(Resource):
             get_email = request.args.get('email', 'default')
             get_password = request.args.get('password', None)
             if get_id is None or get_password is None:
-                return make_response(jsonify({'Exception': 'You should give us id and password'}), 400)
+                return {'Exception': 'You should give us id and password'}, 400
             user = User.create_user(id=get_id, email=get_email, password=get_password)
             User.generate_auth_token(User.get(id=get_id))
-            return make_response(jsonify(user), 201)
+            return user, 201
         except Exception as e:
-            return make_response(jsonify({'Exception': str(e)}), 409)
+            return {'Exception': str(e)}, 409
 
     def get(self):
         try:
-            get_id = request.args.get('id', default=None)
-            get_password = request.args.get('password', default=None)
+            get_id = request.args.get('id', None)
+            get_password = request.args.get('password', None)
             if get_id is None or get_password is None:
-                return make_response(jsonify({'Exception': 'You should give us id and password'}), 400)
+                return {'Exception': 'You should give us id and password'}, 400
             user = User.select_user(id=get_id, password=get_password)
-            return make_response(jsonify(user), 200)
+            return user, 200
         except Exception as e:
-            return make_response(jsonify({'Exception': str(e)}), 409)
+            return {'Exception': str(e)}, 409
 
 
 # /pin
@@ -68,13 +68,13 @@ class PinApi(Resource):
             get_description = request.args.get('description', 'default')
             get_board = request.args.get('board', 'default')
             if get_name is None or get_img_url is None:
-                return make_response(jsonify({'Exception': 'You should give us name and img_url'}), 400)
+                return {'Exception': 'You should give us name and img_url'}, 400
             pin = Pin.create_pin(name=get_name, img_url=get_img_url, description=get_description, board=get_board)
             if pin is None:
-                return make_response(jsonify({'Exception': 'Your board does not exist in our Board title list'}), 400)
-            return make_response(jsonify(pin), 200)
+                return {'Exception': 'Your board does not exist in our Board title list'}, 400
+            return pin, 200
         except Exception as e:
-            return make_response(jsonify({'Exception': str(e)}), 409)
+            return {'Exception': str(e)}, 409
 
     # R 주어진 name을 가진 Pin을 가져오기
     def get(self):
@@ -82,10 +82,10 @@ class PinApi(Resource):
             get_name = request.args.get('name', None)
             pin = Pin.select_pin(name=get_name)
             if pin is None:
-                return make_response(jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400)
-            return make_response(jsonify(pin), 200)
+                return {'Exception': 'Your name does not exist in our Pin name list'}, 400
+            return pin, 200
         except Exception as e:
-            return make_response(jsonify({'Exception': str(e)}), 409)
+            return {'Exception': str(e)}, 409
 
     # U 주어진 name을 가진 Pin을 업데이트
     def put(self):
@@ -95,15 +95,15 @@ class PinApi(Resource):
             get_description = request.args.get('description', 'default')
             get_board = request.args.get('board', 'default')
             if get_name is None or get_img_url is None:
-                return make_response(jsonify({'Exception': 'You should give us name or img_url'}), 400)
+                return {'Exception': 'You should give us name or img_url'}, 400
             pin = Pin.update_pin(name=get_name, img_url=get_img_url, description=get_description, board=get_board)
             if pin == 0:
                 pin = {'Exception': 'Your board does not exist in our Board title list'}
             elif pin == 1:
                 pin = {'Exception': 'Your name does not exist in our Pin name list'}
-            return make_response(jsonify(pin), 200)
+            return pin, 200
         except Exception as e:
-            return make_response(jsonify({'Exception': str(e)}), 409)
+            return {'Exception': str(e)}, 409
 
     # D 주어진 name을 가진 Pin을 삭제
     def delete(self):
@@ -111,21 +111,21 @@ class PinApi(Resource):
             get_name = request.args.get('name', None)
             pin = Pin.delete_pin(name=get_name)
             if pin is None:
-                return make_response(jsonify({'Exception': 'Your name does not exist in our Pin name list'}), 400)
-            return make_response(jsonify(pin), 200)
+                return {'Exception': 'Your name does not exist in our Pin name list'}, 400
+            return pin, 200
         except Exception as e:
-            return make_response(jsonify({'Exception': str(e)}), 409)
+            return {'Exception': str(e)}, 409
 
 
 # /pin/list
 class PinListApi(Resource):
     # 모든 Pin들을 가져오기
-    def post(self):
+    def get(self):
         try:
             pin_list = Pin.select_pin_list()
-            return make_response(jsonify(pin_list), 200)
+            return pin_list, 200
         except Exception as e:
-            return make_response(jsonify({'Exception': str(e)}), 409)
+            return {'Exception': str(e)}, 409
 
 
 # /board
@@ -136,11 +136,11 @@ class BoardApi(Resource):
             get_title = request.args.get('title', None)
             get_comment = request.args.get('comment', None)
             if get_title is None or get_comment is None:
-                return make_response(jsonify({'Exception': 'You should give us title and comment'}), 400)
+                return {'Exception': 'You should give us title and comment'}, 400
             board = Board.create_board(title=get_title, comment=get_comment)
-            return make_response(jsonify(board), 200)
+            return board, 200
         except Exception as e:
-            return make_response(jsonify({'Exception': str(e)}), 409)
+            return {'Exception': str(e)}, 409
 
     # R 주어진 title을 가진 Board를 가져오기
     def get(self):
@@ -148,10 +148,10 @@ class BoardApi(Resource):
             get_title = request.args.get('title', None)
             board = Board.select_board(title=get_title)
             if board is None:
-                return make_response(jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400)
-            return make_response(jsonify(board), 200)
+                return {'Exception': 'Your title does not exist in our Board title list'}, 400
+            return board, 200
         except Exception as e:
-            return make_response(jsonify({'Exception': str(e)}), 409)
+            return {'Exception': str(e)}, 409
 
     # U 주어진 title을 가진 Board를 업데이트
     def put(self):
@@ -159,13 +159,13 @@ class BoardApi(Resource):
             get_title = request.args.get('title', None)
             get_comment = request.args.get('comment', None)
             if get_title is None or get_comment is None:
-                return make_response(jsonify({'Exception': 'You should give us title and comment'}), 400)
+                return {'Exception': 'You should give us title and comment'}, 400
             board = Board.update_board(title=get_title, comment=get_comment)
             if board is None:
-                return make_response(jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400)
-            return make_response(jsonify(board), 200)
+                return {'Exception': 'Your title does not exist in our Board title list'}, 400
+            return board, 200
         except Exception as e:
-            return make_response(jsonify({'Exception': str(e)}), 409)
+            return {'Exception': str(e)}, 409
 
     # D 주어진 name을 가진 Board를 삭제
     def delete(self):
@@ -173,20 +173,20 @@ class BoardApi(Resource):
             get_title = request.args.get('title', None)
             board = Board.delete_board(title=get_title)
             if board == 0:
-                return make_response(jsonify({'Exception': 'Your title does not exist in our Board title list'}), 400)
+                return {'Exception': 'Your title does not exist in our Board title list'}, 400
             elif board == 1:
-                return make_response(jsonify({'Exception': 'You cannot delete default board'}), 400)
-            return make_response(jsonify(board), 200)
+                return {'Exception': 'You cannot delete default board'}, 400
+            return board, 200
         except Exception as e:
-            return make_response(jsonify({'Exception': str(e)}), 409)
+            return {'Exception': str(e)}, 409
 
 
 # /board/list
 class BoardListApi(Resource):
     # 모든 Board들을 가져오기
-    def post(self):
+    def get(self):
         try:
             board_list = Board.select_board_list()
-            return make_response(jsonify(board_list), 200)
+            return board_list, 200
         except Exception as e:
-            return make_response(jsonify({'Exception': str(e)}), 409)
+            return {'Exception': str(e)}, 409
