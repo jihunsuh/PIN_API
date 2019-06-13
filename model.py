@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from peewee import *
 import pymysql.cursors
 from userlogic import User
@@ -11,6 +12,7 @@ DB = SqliteDatabase('test_peewee.db')
 #                              charset='UTF-8',
 #                              cursorclass=pymysql.cursors.DictCursor)
 
+
 # 원본 board의 삭제를 감지해 자동으로 Pin의 board를 default로 업데이트해주는 함수
 def title_confirm_board_null(pin):
     try:
@@ -21,15 +23,13 @@ def title_confirm_board_null(pin):
     else:
         return title
 
+
 # DB에 접속할 때 default Board를 자동으로 생성해주는 함수
 def create_default():
     try:
-        get_Board = Board.select().where(Board.title=='default').get()
+        get_board = Board.select().where(Board.title == 'default').get()
     except Board.DoesNotExist:
         Board.create_board('default', 'default')
-        return None
-    else:
-        return None
 
 
 # Pin을 모아두는 Board 모델 정의
@@ -145,19 +145,18 @@ class Pin(Model):
             return 1
         else:
             # img_url의 입력값이 들어오지 않았을 때 img_url을 기존 값으로 설정
-            if img_url is None:
-                img_url = cls.get(cls.name == name).img_url
+            if img_url == 'default':
+                img_url = get_pin.img_url
             # description의 입력값이 들어오지 않았을 때 description을 기존 값으로 설정
-            if description is None:
-                description = cls.get(cls.name == name).description
+            if description == 'default':
+                description = get_pin.description
             pin = cls().update(img_url=img_url, description=description, board=board).where(cls.name == name)
             pin.execute()
-            pin = get_pin
+            pin = Pin.get(cls.name == name)
             return {'name': pin.name,
                     'img_url': pin.img_url,
                     'description': pin.description,
                     'board': title_confirm_board_null(pin)}
-
 
     # D delete pin
     @classmethod

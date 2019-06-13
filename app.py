@@ -1,4 +1,4 @@
-from flask import Flask, g, jsonify
+from flask import Flask
 from flask_restful import Api
 
 import model
@@ -10,13 +10,13 @@ app.secret_key = config.SECRET_KEY
 api = Api(app)
 
 
-api.add_resource(resource.AuthAndToken, '/token')
-api.add_resource(resource.User, '/user')
-api.add_resource(resource.Hello, '/hello')
-api.add_resource(resource.Pin, '/pin')
-api.add_resource(resource.Board, '/board')
-api.add_resource(resource.PinList, '/pin/list')
-api.add_resource(resource.BoardList, '/board/list')
+api.add_resource(resource.AuthAndTokenApi, '/token')
+api.add_resource(resource.UserApi, '/user')
+api.add_resource(resource.HelloApi, '/hello')
+api.add_resource(resource.PinApi, '/pin')
+api.add_resource(resource.BoardApi, '/board')
+api.add_resource(resource.PinListApi, '/pin/list')
+api.add_resource(resource.BoardListApi, '/board/list')
 
 if __name__ == '__main__':
     model.initialize()

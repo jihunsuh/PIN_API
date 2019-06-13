@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from peewee import Model, CharField, SqliteDatabase
 from flask import g, Flask
 from flask_bcrypt import check_password_hash, generate_password_hash
@@ -19,7 +20,7 @@ class User(Model):
 
     # 사용자 정보로 User 생성
     @classmethod
-    def create_user(cls, id, email, password, **kwargs):
+    def create_user(cls, id, email, password):
         email = email.lower()
         try:
             cls.select().where(
@@ -45,10 +46,9 @@ class User(Model):
         else:
             # 주어진 password를 확인
             if check_password_hash(user.password, password):
-                g.user = user
                 return {'id': user.id,
                         'email': user.email,
-                        'password': password}
+                        'password': user.password}
             else:
                 return {'Exception': 'Your password does not match'}
 
