@@ -1,7 +1,7 @@
 from flask import g
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
 from flask_bcrypt import check_password_hash
-from userlogic import User
+from models.User import User
 
 basic_auth = HTTPBasicAuth()
 token_auth = HTTPTokenAuth()

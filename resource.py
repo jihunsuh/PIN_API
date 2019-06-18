@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from flask_restful import Resource, reqparse
-from flask import jsonify, make_response, g, request
+from flask_restful import Resource
+from flask import g, request
 from auth import basic_auth
 from model import Pin, Board
-from userlogic import User
+from models.User import User
 
 
 # /hello Server 작동 확인

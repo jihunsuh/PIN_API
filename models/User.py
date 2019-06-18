@@ -5,8 +5,7 @@ from flask_bcrypt import check_password_hash, generate_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired
 
 import config
-
-DB = SqliteDatabase('test_peewee.db')
+from . import DB
 
 
 # 사용자를 정의하는 User 모델 정의
