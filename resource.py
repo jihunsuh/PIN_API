@@ -9,10 +9,7 @@ from models.User import User
 # /hello Server 작동 확인
 class HelloApi(Resource):
     def get(self):
-        try:
-            return {'name': request.args.get('name', '')}, 200
-        except Exception as e:
-            return {'Exception': str(e)}, 409
+        return {'name': request.args.get('name', '')}, 200
 
     def post(self):
         return {'message': 'hello, World!'}, 200
@@ -41,21 +38,20 @@ class UserApi(Resource):
             if get_id is None or get_password is None:
                 return {'Exception': 'You should give us id and password'}, 400
             user = User.create_user(id=get_id, email=get_email, password=get_password)
-            User.generate_auth_token(User.get(id=get_id))
+            User.generate_auth_token(user)
             return user, 201
         except Exception as e:
             return {'Exception': str(e)}, 409
 
     def get(self):
-        try:
-            get_id = request.args.get('id', None)
-            get_password = request.args.get('password', None)
-            if get_id is None or get_password is None:
-                return {'Exception': 'You should give us id and password'}, 400
-            user = User.select_user(id=get_id, password=get_password)
-            return user, 200
-        except Exception as e:
-            return {'Exception': str(e)}, 409
+        get_id = request.args.get('id', None)
+        get_password = request.args.get('password', None)
+        if get_id is None or get_password is None:
+            return {'Exception': 'You should give us id and password'}, 400
+        user = User.select_user(id=get_id, password=get_password)
+        if user['exception'] is not None:
+            return user, 404
+        return user, 200
 
 
 # /pin

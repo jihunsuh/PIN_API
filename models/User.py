@@ -10,7 +10,7 @@ from . import DB
 
 # 사용자를 정의하는 User 모델 정의
 class User(Model):
-    id = CharField(unique=True)
+    id = CharField(primary_key=True)
     email = CharField(unique=True)
     password = CharField()
 
