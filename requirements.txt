@@ -3,4 +3,4 @@ flask-restful
 flask-bcrypt
 flask-httpauth
 peewee
-peewee
+uwsgi
