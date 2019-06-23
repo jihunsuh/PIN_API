@@ -17,7 +17,3 @@ api.add_resource(resource.PinApi, '/pin')
 api.add_resource(resource.BoardApi, '/board')
 api.add_resource(resource.PinListApi, '/pin/list')
 api.add_resource(resource.BoardListApi, '/board/list')
-
-if __name__ == '__main__':
-    model.initialize()
-    app.run(debug=config.DEBUG, host=config.HOST, port=config.PORT)
