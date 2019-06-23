@@ -1,7 +1,8 @@
 from flask_restful import Resource
 from flask import g, request
 from auth import basic_auth
-from model import Pin, Board
+from models.Pin import Pin
+from models.Board import Board
 from models.User import User
 
 
