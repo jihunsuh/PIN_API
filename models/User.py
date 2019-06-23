@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from peewee import Model, CharField, SqliteDatabase
-from flask import g, Flask
+from peewee import Model, CharField
+from flask import g
 from flask_bcrypt import check_password_hash, generate_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired
 

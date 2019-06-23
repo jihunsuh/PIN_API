@@ -2,6 +2,7 @@ from peewee import Model, CharField, ForeignKeyField, TextField, DateTimeField
 import datetime
 from . import Board, DB
 
+
 # Pin 모델 정의
 class Pin(Model):
     name = CharField(max_length=20, primary_key=True)
