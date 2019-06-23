@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from models.User import User
 from models import Pin, Board, DB
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from flask_restful import Resource
 from flask import g, request
 from auth import basic_auth
