@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from peewee import Model, CharField
-from flask import g
+from flask import g, request
+from flask_restful import Resource
 from flask_bcrypt import check_password_hash, generate_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired
 
@@ -68,3 +69,29 @@ class User(Model):
             return None
         user = User.select().where(User.id == data['id']).get()
         return user
+
+# /user
+class UserApi(Resource):
+    # 입력한 정보로 유저 생성
+    def post(self):
+        try:
+            get_id = request.args.get('id', None)
+            get_email = request.args.get('email', 'default')
+            get_password = request.args.get('password', None)
+            if get_id is None or get_password is None:
+                return {'Exception': 'You should give us id and password'}, 400
+            user = User.create_user(id=get_id, email=get_email, password=get_password)
+            User.generate_auth_token(user)
+            return user, 201
+        except Exception as e:
+            return {'Exception': str(e)}, 409
+
+    def get(self):
+        get_id = request.args.get('id', None)
+        get_password = request.args.get('password', None)
+        if get_id is None or get_password is None:
+            return {'Exception': 'You should give us id and password'}, 400
+        user = User.select_user(id=get_id, password=get_password)
+        if user['exception'] is not None:
+            return user, 404
+        return user, 200
