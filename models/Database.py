@@ -13,6 +13,6 @@ def auto_create_default_board():
 
 def initialize():
     DB.connect()
-    DB.create_tables([User, Board, Pin], safe=True)
+    DB.create_tables([User, Board, Pin])
     auto_create_default_board()
     DB.close()
