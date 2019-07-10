@@ -1,7 +1,8 @@
 from flask import Flask
 from flask_restful import Api
 
-from models import User, Board, Pin, Common
+from models import User, Board, Pin
+from resources import Common
 from models.Database import initialize
 
 import config
@@ -19,6 +20,6 @@ api.add_resource(Pin.PinListApi, '/pin/list')
 api.add_resource(Board.BoardApi, '/board')
 api.add_resource(Board.BoardListApi, '/board/list')
 
-# if __name__=='__main__':
-#     initialize()
-#     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)
+if __name__=='__main__':
+    initialize()
+    app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)
