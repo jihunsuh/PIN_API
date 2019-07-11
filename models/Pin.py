@@ -45,26 +45,13 @@ class Pin(Model):
     def update_pin(cls, name, img_url, description, board):
         # 입력된 board가 존재하는지, 입력된 name을 가진 pin이 존재하는지 확인
         try:
-            if_board_exists = Board.select().where(Board.title == board).get()
             if_pin_exists = cls.get(cls.name == name)
-        except Board.DoesNotExist:
-            return 0
-        except Pin.DoesNotExist:
-            return 1
+        except cls.DoesNotExist:
+            return None
         else:
-            # img_url의 입력값이 들어오지 않았을 때 img_url을 기존 값으로 설정
-            if img_url == 'default' or img_url is None:
-                img_url = cls.get(cls.name == name).img_url
-            # description의 입력값이 들어오지 않았을 때 description을 기존 값으로 설정
-            if description == 'default' or description is None:
-                description = cls.get(cls.name == name).description
             pin = cls().update(img_url=img_url, description=description, board=board).where(cls.name == name)
-            pin.execute()
-            pin = cls.get(cls.name == name)
-            return {'name': pin.name,
-                    'img_url': pin.img_url,
-                    'description': pin.description,
-                    'board': title_confirm_board_null(pin)}
+            pin = pin.execute()
+            return {'status': pin}
 
     # D delete pin
     @classmethod

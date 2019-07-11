@@ -30,7 +30,7 @@ class User(Model):
                     'email': user.email,
                     'password': user.password}
         else:
-            return {'exception': 'this user already exists'}
+            return {'Exception': 'this user already exists'}
 
     @classmethod
     def select_user(cls, username, password):

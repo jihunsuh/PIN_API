@@ -1,4 +1,5 @@
-DEBUG = True
-HOST = 'localhost'
-PORT = 8000
 SECRET_KEY = 'qkadmscordlekqkadmsgksrnjsdmlrjeogkscordlek'
+
+SETTING = {"debug": True,
+           "host": "localhost",
+           "port": 8000}

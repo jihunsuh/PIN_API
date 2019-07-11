@@ -9,23 +9,25 @@ class UserResource(Resource):
     # 입력한 정보로 유저 생성
     def post(self):
         try:
-            get_id = request.args.get('id', None)
-            get_email = request.args.get('email', 'default')
-            get_password = request.args.get('password', None)
-            if get_id is None or get_password is None:
-                return {'Exception': 'You should give us id and password'}, 400
-            user = UserModel.create_user(id=get_id, email=get_email, password=get_password)
-            UserModel.generate_auth_token(user)
-            return user, 201
-        except Exception as e:
-            return {'Exception': str(e)}, 409
+            get_id = request.args['id']
+            get_email = request.args['email']
+            get_password = request.args['password']
+        except KeyError:
+            return {'Exception': 'You should give us id or password'}, 400
+
+        user = UserModel.create_user(id=get_id, email=get_email, passwosrd=get_password)
+        return user, 201
 
     def get(self):
-        get_id = request.args.get('id', None)
-        get_password = request.args.get('password', None)
-        if get_id is None or get_password is None:
-            return {'Exception': 'You should give us id and password'}, 400
+        try:
+            get_id = request.args['id']
+            get_password = request.args['password']
+        except KeyError:
+            return {'Exception': 'You should give us id or password'}, 400
+
         user = UserModel.select_user(id=get_id, password=get_password)
-        if user['exception'] is not None:
-            return user, 404
+
+        if user['exception']:
+            return user, 400
         return user, 200
+

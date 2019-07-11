@@ -1,5 +1,6 @@
-from peewee import Model, CharField
 import datetime
+from peewee import Model, CharField
+
 from . import DB
 
 
@@ -17,7 +18,10 @@ class Board(Model):
     def create_board(cls, title, comment):
         board = cls.create(title=title, comment=comment)
         board = board.save()
-        return {'save': board}
+        if board == 1:
+            return {'save': 'success'}
+        else:
+            return {'save': 'failure'}
 
     # R read board
     @classmethod
@@ -48,12 +52,10 @@ class Board(Model):
     def delete_board(cls, title):
         try:
             board = cls().get(cls.title == title)
-            if title == 'default':
-                return 1
             board.delete_instance()
             return {'status': 'success'}
         except cls.DoesNotExist:
-            return 0
+            return None
 
     @classmethod
     def select_board_list(cls):
@@ -63,4 +65,3 @@ class Board(Model):
                            'comment': board.comment,
                            'created_at': board.created_at})
         return result
-
