@@ -6,16 +6,17 @@ from . import DB
 
 # 사용자를 정의하는 User 모델 정의
 class User(Model):
-    username = CharField(primary_key=True)
-    email = CharField(unique=True)
-    password = CharField()
 
-    class Meta:
-        database = DB
+    def __init__(self, username, identity, email, password):
+        self.username = username
+        self.identity = identity
+        self.email = email
+        self.password = password
 
     # 사용자 정보로 User 생성
     @classmethod
     def create_user(cls, username, email, password):
+
         email = email.lower()
         try:
             cls.select().where(
@@ -36,9 +37,6 @@ class User(Model):
     def select_user(cls, username, password):
         try:
             user = cls().select().where(cls.username == username).get()
-        except cls.DoesNotExist:
-            return {'Exception': 'Your id does not exist in our User Id list'}
-        else:
             # 주어진 password를 확인
             if check_password_hash(user.password, password):
                 return {'username': user.username,
@@ -46,3 +44,17 @@ class User(Model):
                         'password': user.password}
             else:
                 return {'Exception': 'Your password does not match'}
+        except cls.DoesNotExist:
+            return {'Exception': 'Your id does not exist in our User Id list'}
+
+    @classmethod
+    def find_by_username(cls, username):
+        try:
+            user = cls().select().where(cls.username == username).get()
+            return user
+        except cls.DoesNotExist:
+            return None
+
+
+
+

@@ -32,7 +32,7 @@ class Board(Model):
                     'comment': board.comment,
                     'created_at': board.created_at}
         except cls.DoesNotExist:
-            return None
+            return {'Exception': 'Your title does not exist in our Board title list'}
 
     # U update board
     @classmethod
@@ -45,7 +45,7 @@ class Board(Model):
                     'comment': update_result.comment,
                     'created_at': update_result.created_at}
         except cls.DoesNotExist:
-            return None
+            return {'Exception': 'Your title does not exist in our Board title list'}
 
     # D delete board
     @classmethod
@@ -55,7 +55,7 @@ class Board(Model):
             board.delete_instance()
             return {'status': 'success'}
         except cls.DoesNotExist:
-            return None
+            return {'Exception': 'Your title does not exist in our Board title list'}
 
     @classmethod
     def select_board_list(cls):

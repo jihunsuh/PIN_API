@@ -26,7 +26,7 @@ class Pin(Model):
             pin = pin.save()
             return {'save': pin}
         except Board.DoesNotExist:
-            return None
+            return {'Exception': 'Your board does not exist in our Board title list'}
 
     # R read pin
     @classmethod
@@ -38,7 +38,7 @@ class Pin(Model):
                     'description': pin.description,
                     'board': title_confirm_board_null(pin)}
         except cls.DoesNotExist:
-            return None
+            return {'Exception': 'Your name does not exist in our Pin name list'}
 
     # U update pin
     @classmethod
@@ -47,11 +47,11 @@ class Pin(Model):
         try:
             if_pin_exists = cls.get(cls.name == name)
         except cls.DoesNotExist:
-            return None
+            return {'Exception': 'Your name does not exist in our Pin name list'}
         else:
             pin = cls().update(img_url=img_url, description=description, board=board).where(cls.name == name)
             pin = pin.execute()
-            return {'status': pin}
+            return {'status': 'success'}
 
     # D delete pin
     @classmethod
@@ -61,7 +61,7 @@ class Pin(Model):
             pin.delete_instance()
             return {'status': 'success'}
         except cls.DoesNotExist:
-            return None
+            return {'Exception': 'Your name does not exist in our Pin name list'}
 
     @classmethod
     def select_pin_list(cls):

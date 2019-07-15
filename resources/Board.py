@@ -17,6 +17,7 @@ class BoardResource(Resource):
             get_comment = request.args['comment']
         except KeyError:
             return {'Exception': 'You should give us title or comment'}, 400
+
         if BoardModel.select_board(get_title):
             return {"Exception": 'This title already exists in our list'}, 400
 
@@ -35,8 +36,8 @@ class BoardResource(Resource):
 
         board = BoardModel.select_board(title=get_title)
 
-        if not board:
-            return {'Exception': 'Your title does not exist in our Board title list'}, 400
+        if board['Exception']:
+            return board, 400
         return board, 200
 
     def put(self):
@@ -52,8 +53,8 @@ class BoardResource(Resource):
 
         board = BoardModel.update_board(title=get_title, comment=get_comment)
 
-        if not board:
-            return {'Exception': 'Your title does not exist in our Board title list'}, 400
+        if board['Exception']:
+            return board, 400
         return board, 200
 
     # D
@@ -66,13 +67,14 @@ class BoardResource(Resource):
             get_title = request.args['title']
         except KeyError:
             return {'Exception': 'You should give us title'}, 400
+
         if get_title == 'default':
             return {'Exception': 'You cannot delete default board'}, 400
 
         board = BoardModel.delete_board(title=get_title)
 
-        if not board:
-            return {'Exception': 'Your title does not exist in our list'}, 400
+        if board['Exception']:
+            return board, 400
         return board, 200
 
 

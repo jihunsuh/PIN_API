@@ -10,7 +10,6 @@ app = Flask(__name__)
 app.secret_key = SECRET_KEY
 api = Api(app)
 
-
 api.add_resource(Common.Hello, '/hello')
 api.add_resource(User.UserResource, '/user')
 api.add_resource(Pin.PinResource, '/pin')
