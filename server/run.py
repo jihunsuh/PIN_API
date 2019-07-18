@@ -1,4 +1,4 @@
-from models.Database import initialize
+from models.database import initialize
 
 
 initialize()

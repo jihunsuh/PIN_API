@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource
-from models.Pin import Pin as PinModel
-from models.Board import Board as BoardModel
+from models.pin import Pin as PinModel
+from models.board import Board as BoardModel
 
 
 class PinResource(Resource):
@@ -14,21 +14,21 @@ class PinResource(Resource):
         :return:
         """
         try:
-            get_name = request.args['name']
-            get_img_url = request.args['img_url']
-            get_description = request.args['description']
-            get_board = request.args['board']
+            name = request.args['name']
+            img_url = request.args['img_url']
+            description = request.args['description']
+            board = request.args['board']
         except KeyError:
             return {'Exception': 'You should give us name and img_url'}, 400
 
-        if PinModel.select_pin(get_name):
+        if PinModel.select_pin(name):
             return {"Exception": 'This title already exists in our list'}, 400
 
-        pin = PinModel.create_pin(name=get_name, img_url=get_img_url, description=get_description, board=get_board)
+        pin = PinModel.create_pin(name=name, img_url=img_url, description=description, board=board)
 
         if pin['Exception']:
             return pin, 400
-        return pin, 200
+        return pin, 201
 
     def get(self):
         """
@@ -36,11 +36,11 @@ class PinResource(Resource):
         :return:
         """
         try:
-            get_name = request.args['name']
+            name = request.args['name']
         except KeyError:
             return {'Exception': 'You should give us name'}, 400
 
-        pin = PinModel.select_pin(name=get_name)
+        pin = PinModel.select_pin(name=name)
 
         if pin['Exception']:
             return pin, 400
@@ -52,17 +52,17 @@ class PinResource(Resource):
         :return:
         """
         try:
-            get_name = request.args['name']
-            get_img_url = request.args['img_url']
-            get_description = request.args['description']
-            get_board = request.args['board']
+            name = request.args['name']
+            img_url = request.args['img_url']
+            description = request.args['description']
+            board = request.args['board']
         except KeyError:
             return {'Exception': 'You should give us data'}, 400
 
-        if not BoardModel.select_board(get_board):
+        if not BoardModel.select_board(board):
             return {'Exception': 'Your board does not exist in our Board title list'}, 400
 
-        pin = PinModel.update_pin(name=get_name, img_url=get_img_url, description=get_description, board=get_board)
+        pin = PinModel.update_pin(name=name, img_url=img_url, description=description, board=board)
 
         if pin['Exception']:
             return pin, 400
@@ -74,11 +74,11 @@ class PinResource(Resource):
         :return:
         """
         try:
-            get_name = request.args['name']
+            name = request.args['name']
         except KeyError:
             return {'Exception': 'You should give us name'}, 400
 
-        pin = PinModel.delete_pin(name=get_name)
+        pin = PinModel.delete_pin(name=name)
 
         if pin['Exception']:
             return pin, 400

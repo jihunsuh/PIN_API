@@ -1,7 +1,7 @@
 from peewee import Model, CharField, ForeignKeyField, TextField, DateTimeField
 import datetime
 from . import DB
-from .Board import Board
+from .board import Board
 
 
 # Pin 모델 정의

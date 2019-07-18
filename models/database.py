@@ -1,6 +1,6 @@
-from .User import User
-from .Board import Board
-from .Pin import Pin
+from .user import User
+from .board import Board
+from .pin import Pin
 from . import DB
 
 

@@ -1,6 +1,6 @@
 from flask import request
 from flask_restful import Resource
-from models.Board import Board as BoardModel
+from models.board import Board as BoardModel
 
 
 class BoardResource(Resource):
@@ -13,16 +13,16 @@ class BoardResource(Resource):
         :return:
         """
         try:
-            get_title = request.args['title']
-            get_comment = request.args['comment']
+            title = request.args['title']
+            comment = request.args['comment']
         except KeyError:
             return {'Exception': 'You should give us title or comment'}, 400
 
-        if BoardModel.select_board(get_title):
+        if BoardModel.select_board(title):
             return {"Exception": 'This title already exists in our list'}, 400
 
-        board = BoardModel.create_board(title=get_title, comment=get_comment)
-        return board, 200
+        board = BoardModel.create_board(title=title, comment=comment)
+        return board, 201
 
     def get(self):
         """
@@ -30,11 +30,11 @@ class BoardResource(Resource):
         :return:
         """
         try:
-            get_title = request.args['title']
+            title = request.args['title']
         except KeyError:
             return {'Exception': 'You should give us title'}, 400
 
-        board = BoardModel.select_board(title=get_title)
+        board = BoardModel.select_board(title=title)
 
         if board['Exception']:
             return board, 400
@@ -46,12 +46,12 @@ class BoardResource(Resource):
         :return:
         """
         try:
-            get_title = request.args['title']
-            get_comment = request.args['comment']
+            title = request.args['title']
+            comment = request.args['comment']
         except KeyError:
             return {'Exception': 'You should give us title or comment'}, 400
 
-        board = BoardModel.update_board(title=get_title, comment=get_comment)
+        board = BoardModel.update_board(title=title, comment=comment)
 
         if board['Exception']:
             return board, 400
@@ -64,14 +64,14 @@ class BoardResource(Resource):
         :return:
         """
         try:
-            get_title = request.args['title']
+            title = request.args['title']
         except KeyError:
             return {'Exception': 'You should give us title'}, 400
 
-        if get_title == 'default':
+        if title == 'default':
             return {'Exception': 'You cannot delete default board'}, 400
 
-        board = BoardModel.delete_board(title=get_title)
+        board = BoardModel.delete_board(title=title)
 
         if board['Exception']:
             return board, 400
