@@ -24,7 +24,10 @@ class Pin(Model):
             if_board_exists = Board.select().where(Board.title == board).get()
             pin = cls.create(name=name, img_url=img_url, description=description, board=board)
             pin = pin.save()
-            return {'save': pin}
+            if pin == 1:
+                return {'message': 'pin created successfully'}
+            else:
+                return {'message': 'failed to create pin'}
         except Board.DoesNotExist:
             return {'Exception': 'Your board does not exist in our Board title list'}
 

@@ -19,9 +19,9 @@ class Board(Model):
         board = cls.create(title=title, comment=comment)
         board = board.save()
         if board == 1:
-            return {'save': 'success'}
+            return {'message': 'board created successfully'}
         else:
-            return {'save': 'failure'}
+            return {'message': 'failed to create board'}
 
     # R read board
     @classmethod
