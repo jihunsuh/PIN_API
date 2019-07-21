@@ -19,14 +19,11 @@ class PinResource(Resource):
             description = request.args['description']
             board = request.args['board']
         except KeyError:
-            return {'Exception': 'You should give us name and img_url'}, 400
-
-        if PinModel.select_pin(name):
-            return {"Exception": 'This title already exists in our list'}, 400
+            return {'Exception': 'You should give us required value'}, 400
 
         pin = PinModel.create_pin(name=name, img_url=img_url, description=description, board=board)
 
-        if pin['Exception']:
+        if pin.get('Exception'):
             return pin, 400
         return pin, 201
 
@@ -42,7 +39,7 @@ class PinResource(Resource):
 
         pin = PinModel.select_pin(name=name)
 
-        if pin['Exception']:
+        if pin.get('Exception'):
             return pin, 400
         return pin, 200
 
@@ -64,7 +61,7 @@ class PinResource(Resource):
 
         pin = PinModel.update_pin(name=name, img_url=img_url, description=description, board=board)
 
-        if pin['Exception']:
+        if pin.get('Exception'):
             return pin, 400
         return pin, 200
 
@@ -80,21 +77,28 @@ class PinResource(Resource):
 
         pin = PinModel.delete_pin(name=name)
 
-        if pin['Exception']:
+        if pin.get('Exception'):
             return pin, 400
         return pin, 200
 
 
-# /pin/list
 class PinListResource(Resource):
     """
-    Pin 테이블의 모든 정보에 접근합니다.
+    name에 해당하는 Pin 정보를 조회
+    name이 list일 경우 DB 안의 모든 Pin 정보들을 조회
     """
     # 모든 Pin들을 가져오기
-    def get(self):
+    def get(self, name):
         """
         DB 안의 모든 Pin 정보들을 조회
         :return:
         """
-        pin_list = PinModel.select_pin_list()
-        return pin_list, 200
+        if name == 'list':
+            pin_list = PinModel.select_pin_list()
+            return pin_list, 200
+
+        pin = PinModel.select_pin(name=name)
+
+        if pin.get('Exception'):
+            return pin, 400
+        return pin, 200

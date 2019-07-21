@@ -18,10 +18,10 @@ class BoardResource(Resource):
         except KeyError:
             return {'Exception': 'You should give us title or comment'}, 400
 
-        if BoardModel.select_board(title):
-            return {"Exception": 'This title already exists in our list'}, 400
-
         board = BoardModel.create_board(title=title, comment=comment)
+
+        if board.get('Exception'):
+            return board, 400
         return board, 201
 
     def get(self):
@@ -36,7 +36,7 @@ class BoardResource(Resource):
 
         board = BoardModel.select_board(title=title)
 
-        if board['Exception']:
+        if board.get('Exception'):
             return board, 400
         return board, 200
 
@@ -53,7 +53,7 @@ class BoardResource(Resource):
 
         board = BoardModel.update_board(title=title, comment=comment)
 
-        if board['Exception']:
+        if board.get('Exception'):
             return board, 400
         return board, 200
 
@@ -73,7 +73,7 @@ class BoardResource(Resource):
 
         board = BoardModel.delete_board(title=title)
 
-        if board['Exception']:
+        if board.get('Exception'):
             return board, 400
         return board, 200
 
@@ -82,13 +82,18 @@ class BoardListResource(Resource):
     """
     Board 테이블의 모든 정보에 접근합니다.
     """
-    def get(self):
+    def get(self, title):
         """
-        DB 안의 모든 Board 정보들을 조회
-        :return:
+        title에 해당하는 Board 정보를 조회
+        title이 list일 경우 DB 안의 모든 Board 정보들을 조회
+        :return: Board 정보들
         """
-        try:
+        if title == 'list':
             board_list = BoardModel.select_board_list()
             return board_list, 200
-        except ConnectionError as e:
-            return {'Exception': str(e)}, 409
+
+        board = BoardModel.select_board(title=title)
+
+        if board.get('Exception'):
+            return board, 400
+        return board, 200
