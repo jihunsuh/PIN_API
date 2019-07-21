@@ -7,16 +7,12 @@ class BoardResource(Resource):
     """
     Board 테이블의 정보에 CRUD 형식으로 접근합니다.
     """
-    def post(self):
+    def post(self, title):
         """
         입력한 정보로 새 Board를 만들어 DB 안에 삽입
         :return:
         """
-        try:
-            title = request.args['title']
-            comment = request.args['comment']
-        except KeyError:
-            return {'Exception': 'You should give us title or comment'}, 400
+        comment = request.args.get('comment', title)
 
         board = BoardModel.create_board(title=title, comment=comment)
 
@@ -24,50 +20,37 @@ class BoardResource(Resource):
             return board, 400
         return board, 201
 
-    def get(self):
+    def get(self, title):
         """
         주어진 title을 가진 Board의 정보를 반환
         :return:
         """
-        try:
-            title = request.args['title']
-        except KeyError:
-            return {'Exception': 'You should give us title'}, 400
-
         board = BoardModel.select_board(title=title)
 
         if board.get('Exception'):
             return board, 400
         return board, 200
 
-    def put(self):
+    def put(self, title):
         """
         입력한 정보로 주어진 title을 가진 Board를 업데이트
         :return:
         """
-        try:
-            title = request.args['title']
-            comment = request.args['comment']
-        except KeyError:
-            return {'Exception': 'You should give us title or comment'}, 400
+        comment = request.args.get('comment', title)
+        alter_title = request.args.get('title', title)
 
-        board = BoardModel.update_board(title=title, comment=comment)
+        board = BoardModel.update_board(title=title, alter_title=alter_title, comment=comment)
 
         if board.get('Exception'):
             return board, 400
         return board, 200
 
     # D
-    def delete(self):
+    def delete(self, title):
         """
         입력한 title의 Board 정보를 삭제
         :return:
         """
-        try:
-            title = request.args['title']
-        except KeyError:
-            return {'Exception': 'You should give us title'}, 400
-
         if title == 'default':
             return {'Exception': 'You cannot delete default board'}, 400
 
@@ -84,16 +67,8 @@ class BoardListResource(Resource):
     """
     def get(self, title):
         """
-        title에 해당하는 Board 정보를 조회
-        title이 list일 경우 DB 안의 모든 Board 정보들을 조회
+        DB 안의 모든 Board 정보들을 조회
         :return: Board 정보들
         """
-        if title == 'list':
-            board_list = BoardModel.select_board_list()
-            return board_list, 200
-
-        board = BoardModel.select_board(title=title)
-
-        if board.get('Exception'):
-            return board, 400
-        return board, 200
+        board_list = BoardModel.select_board_list()
+        return board_list, 200

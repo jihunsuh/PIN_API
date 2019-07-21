@@ -35,20 +35,24 @@ class Board(Model):
                     'comment': board.comment,
                     'created_at': board.created_at}
         except cls.DoesNotExist:
-            return {'Exception': 'Your title does not exist in our Board title list'}
+            return {'Exception': 'Given title does not exist in our Board title list'}
 
     # U update board
     @classmethod
-    def update_board(cls, title, comment):
+    def update_board(cls, title, alter_title, comment):
         try:
-            board = cls().update(comment=comment).where(cls.title == title)
+            # 변경할 board가 존재하는지 확인
+            if_board_exists = cls.get(cls.title == title)
+
+            # 만약 title을 변경할 예정인데, 변경할 title을 가진 board가 이미 있다면 exception 리턴
+            if title != alter_title and cls.check_exist_with_name(alter_title):
+                return {'Exception': 'Given altered title already exists in our Board title list'}
+
+            board = cls().update(title=alter_title, comment=comment).where(cls.title == title)
             board.execute()
-            update_result = cls().get(cls.title == title)
-            return {'name': update_result.title,
-                    'comment': update_result.comment,
-                    'created_at': update_result.created_at}
+            return {'message': 'pin updated successfully'}
         except cls.DoesNotExist:
-            return {'Exception': 'Your title does not exist in our Board title list'}
+            return {'Exception': 'Given title does not exist in our Board title list'}
 
     # D delete board
     @classmethod
@@ -56,9 +60,9 @@ class Board(Model):
         try:
             board = cls().get(cls.title == title)
             board.delete_instance()
-            return {'status': 'success'}
+            return {'message': 'board deleted successfully'}
         except cls.DoesNotExist:
-            return {'Exception': 'Your title does not exist in our Board title list'}
+            return {'Exception': 'Given title does not exist in our Board title list'}
 
     @classmethod
     def select_board_list(cls):
@@ -68,3 +72,11 @@ class Board(Model):
                            'comment': board.comment,
                            'created_at': board.created_at})
         return result
+
+    @classmethod
+    def check_exist_with_name(cls, title):
+        try:
+            if_board_exists = cls().get(cls.title == title)
+            return True
+        except cls.DoesNotExist:
+            return False
