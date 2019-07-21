@@ -40,7 +40,7 @@ class User(Model):
             if check_password_hash(user.password, password):
                 return {'username': user.username,
                         'email': user.email,
-                        'password': user.password}
+                        'password': password}
             else:
                 return {'Exception': 'Your password does not match'}
         except cls.DoesNotExist:
