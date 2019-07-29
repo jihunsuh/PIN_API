@@ -24,11 +24,8 @@ class User(Model):
         except cls.DoesNotExist:
             # 주어진 password를 bcrypt로 암호화
             user = cls.create(username=username, email=email, password=generate_password_hash(password).decode('utf-8'))
-            user.save()
-            g.user = user
             return {'username': user.username,
-                    'email': user.email,
-                    'password': user.password}
+                    'email': user.email}
         else:
             return {'Exception': 'this user already exists'}
 

@@ -26,7 +26,6 @@ class UserResource(Resource):
 
         user = UserModel.select_user(username=username, password=password)
 
-        if user['exception']:
-            return user, 400
+        if user.get('Exception'):
+            return user, 401
         return user, 200
-

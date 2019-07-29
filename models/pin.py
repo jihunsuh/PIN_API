@@ -24,7 +24,6 @@ class Pin(Model):
             if_board_exists = BoardModel.get(BoardModel.title == board)
 
             pin = cls.create(name=name, img_url=img_url, description=description, board=board)
-            pin = pin.save()
             if pin == 1:
                 return {'message': 'pin created successfully'}
             else:

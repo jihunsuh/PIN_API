@@ -31,7 +31,7 @@ class BoardResource(Resource):
             return board, 400
         return board, 200
 
-    def put(self, title):
+    def patch(self, title):
         """
         입력한 정보로 주어진 title을 가진 Board를 업데이트
         :return:

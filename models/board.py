@@ -1,5 +1,5 @@
 import datetime
-from peewee import Model, CharField, IntegrityError
+from peewee import Model, CharField, IntegrityError, DateTimeField
 
 from . import DB
 
@@ -8,7 +8,7 @@ from . import DB
 class Board(Model):
     title = CharField(max_length=20, primary_key=True)
     comment = CharField(max_length=200)
-    created_at = CharField(default=str(datetime.datetime.now()))
+    created_at = DateTimeField(default=datetime.datetime.now())
 
     class Meta:
         database = DB
@@ -18,7 +18,6 @@ class Board(Model):
     def create_board(cls, title, comment):
         try:
             board = cls.create(title=title, comment=comment)
-            board = board.save()
             if board == 1:
                 return {'message': 'board created successfully'}
             else:
@@ -29,29 +28,26 @@ class Board(Model):
     # R read board
     @classmethod
     def select_board(cls, title):
-        try:
+        if cls.check_exist_with_title(title):
             board = cls().select().where(cls.title == title).get()
             return {'title': board.title,
                     'comment': board.comment,
                     'created_at': board.created_at}
-        except cls.DoesNotExist:
+        else:
             return {'Exception': 'Given title does not exist in our Board title list'}
 
     # U update board
     @classmethod
     def update_board(cls, title, alter_title, comment):
-        try:
-            # 변경할 board가 존재하는지 확인
-            if_board_exists = cls.get(cls.title == title)
-
+        if cls.check_exist_with_title(title):
             # 만약 title을 변경할 예정인데, 변경할 title을 가진 board가 이미 있다면 exception 리턴
-            if title != alter_title and cls.check_exist_with_name(alter_title):
+            if title != alter_title and cls.check_exist_with_title(alter_title):
                 return {'Exception': 'Given altered title already exists in our Board title list'}
 
             board = cls().update(title=alter_title, comment=comment).where(cls.title == title)
             board.execute()
             return {'message': 'pin updated successfully'}
-        except cls.DoesNotExist:
+        else:
             return {'Exception': 'Given title does not exist in our Board title list'}
 
     # D delete board
@@ -74,7 +70,7 @@ class Board(Model):
         return result
 
     @classmethod
-    def check_exist_with_name(cls, title):
+    def check_exist_with_title(cls, title):
         try:
             if_board_exists = cls().get(cls.title == title)
             return True
