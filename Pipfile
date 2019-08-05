@@ -12,6 +12,8 @@ flask-restful = "*"
 peewee = "*"
 flask-bcrypt = "*"
 datetime = "*"
+werkzeug = "*"
+black = "*"
 
 [requires]
 python_version = "3.7"
