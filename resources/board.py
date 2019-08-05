@@ -5,6 +5,46 @@ from models.board import Board as BoardModel
 
 class BoardResource(Resource):
     """
+    Board 테이블의 모든 정보에 접근합니다.
+    """
+    def get(self, title):
+        """
+        DB 안의 모든 Board 정보들을 조회
+        :return: Board 정보들
+        """
+        board_list = BoardModel.select_board_list()
+        return board_list, 200
+
+    def post(self):
+        """
+        입력한 정보로 새 Board를 만들어 DB 안에 삽입
+        :return:
+        """
+        data = request.get_json()
+        status_code = 200
+
+        if isinstance(data, list):
+            # [] 형태로 여러 개의 Board Data를 전송할 때, 한꺼번에 POST가 가능하도록 처리
+            board = []
+            for input_board_data in data:
+                output_board_data = BoardModel.create_board(**input_board_data)
+                if output_board_data.get('Exception'):
+                    status_code = 400
+                board.append(output_board_data)
+        else:
+            try:
+                board = BoardModel.create_board(**data)
+            except KeyError:
+                return {'Exception': "You should give us required data"}, 400
+
+            if board.get('Exception'):
+                status_code = 400
+
+        return board, status_code
+
+
+class BoardItemResource(Resource):
+    """
     Board 테이블의 정보에 CRUD 형식으로 접근합니다.
     """
     def post(self, title):
@@ -60,15 +100,3 @@ class BoardResource(Resource):
             return board, 400
         return board, 200
 
-
-class BoardListResource(Resource):
-    """
-    Board 테이블의 모든 정보에 접근합니다.
-    """
-    def get(self, title):
-        """
-        DB 안의 모든 Board 정보들을 조회
-        :return: Board 정보들
-        """
-        board_list = BoardModel.select_board_list()
-        return board_list, 200

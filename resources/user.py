@@ -3,28 +3,33 @@ from flask_restful import Resource
 from models.user import User as UserModel
 
 
-# /user
-class UserResource(Resource):
-    # 입력한 정보로 유저 생성
+# /signup
+class UserSignUpResource(Resource):
+    """
+    입력한 정보로 유저를 생성합니다.
+    """
     def post(self):
+        data = request.get_json()
         try:
-            username = request.args['username']
-            email = request.args['email']
-            password = request.args['password']
+            user = UserModel.create_user(**data)
         except KeyError:
             return {'Exception': 'You should give us username or password'}, 400
 
-        user = UserModel.create_user(username=username, email=email, password=password)
         return user, 201
 
+
+# /auth
+class UserAuthResource(Resource):
     def get(self):
+        """
+        입력한 정보가 유저 테이블 안에 있는지를 확인하고 그 결과를 리턴합니다.
+        :return:
+        """
+        data = request.get_json()
         try:
-            username = request.args['username']
-            password = request.args['password']
+            user = UserModel.select_user(**data)
         except KeyError:
             return {'Exception': 'You should give us username or password'}, 400
-
-        user = UserModel.select_user(username=username, password=password)
 
         if user.get('Exception'):
             return user, 401

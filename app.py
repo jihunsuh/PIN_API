@@ -11,11 +11,12 @@ app.config.from_object('config.DefaultConfig')
 api = Api(app)
 
 api.add_resource(common.Hello, '/hello')
-api.add_resource(user.UserResource, '/user')
-api.add_resource(pin.PinListResource, '/pin')
-api.add_resource(pin.PinResource, '/pin/<name>')
-api.add_resource(board.BoardListResource, '/board')
-api.add_resource(board.BoardResource, '/board/<title>')
+api.add_resource(user.UserSignUpResource, '/signup')
+api.add_resource(user.UserAuthResource, '/auth')
+api.add_resource(pin.PinResource, '/pin')
+api.add_resource(pin.PinItemResource, '/pin/<name>')
+api.add_resource(board.BoardResource, '/board')
+api.add_resource(board.BoardItemResource, '/board/<title>')
 
 if __name__ == '__main__':
     initialize()

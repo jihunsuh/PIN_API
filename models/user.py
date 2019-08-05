@@ -1,5 +1,5 @@
 from peewee import Model, CharField
-from flask_bcrypt import check_password_hash, generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from . import DB
 
@@ -22,7 +22,7 @@ class User(Model):
                 (cls.email == email) | (cls.username == username)
             ).get()
         except cls.DoesNotExist:
-            # 주어진 password를 bcrypt로 암호화
+            # 주어진 password를 werkzeug로 암호화
             user = cls.create(username=username, email=email, password=generate_password_hash(password).decode('utf-8'))
             return {'username': user.username,
                     'email': user.email}

@@ -18,10 +18,7 @@ class Board(Model):
     def create_board(cls, title, comment):
         try:
             board = cls.create(title=title, comment=comment)
-            if board == 1:
-                return {'message': 'board created successfully'}
-            else:
-                return {'message': 'failed to create board'}
+            return {'message': 'board created successfully'}
         except IntegrityError:
             return {'Exception': 'This title already exists in our list'}
 

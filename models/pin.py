@@ -24,10 +24,7 @@ class Pin(Model):
             if_board_exists = BoardModel.get(BoardModel.title == board)
 
             pin = cls.create(name=name, img_url=img_url, description=description, board=board)
-            if pin == 1:
-                return {'message': 'pin created successfully'}
-            else:
-                return {'message': 'failed to create pin'}
+            return {'message': 'pin created successfully'}
         except BoardModel.DoesNotExist:
             return {'Exception': 'Given board does not exist in our Board title list'}
         except IntegrityError:
