@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, abort
 from flask_restful import Resource
 from models.pin import Pin as PinModel
 from models.board import Board as BoardModel
@@ -41,7 +41,7 @@ class PinResource(Resource):
                 return {'Exception': "You should give us required data"}, 400
 
             if pin.get('Exception'):
-                status_code = 400
+                abort(400, pin['Exception'])
 
         return pin, status_code
 
@@ -59,7 +59,7 @@ class PinItemResource(Resource):
         pin = PinModel.select_pin(name=name)
 
         if pin.get('Exception'):
-            return pin, 400
+            abort(400, pin['Exception'])
         return pin, 200
 
     def patch(self, name):
@@ -80,7 +80,7 @@ class PinItemResource(Resource):
         pin = PinModel.update_pin(name=name, **data)
 
         if pin.get('Exception'):
-            return pin, 400
+            abort(400, pin['Exception'])
         return pin, 200
 
     def delete(self, name):
@@ -91,6 +91,6 @@ class PinItemResource(Resource):
         pin = PinModel.delete_pin(name=name)
 
         if pin.get('Exception'):
-            return pin, 400
+            abort(400, pin['Exception'])
         return pin, 200
 

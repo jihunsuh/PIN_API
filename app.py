@@ -10,6 +10,12 @@ app = Flask(__name__)
 app.config.from_object('config.DefaultConfig')
 api = Api(app)
 
+
+@app.errorhandler(400)
+def custom400(error):
+    response = {'message': error.description}
+
+
 api.add_resource(common.Hello, '/hello')
 api.add_resource(user.UserSignUpResource, '/signup')
 api.add_resource(user.UserAuthResource, '/auth')

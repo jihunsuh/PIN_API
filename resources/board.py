@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, abort
 from flask_restful import Resource
 from models.board import Board as BoardModel
 
@@ -57,7 +57,7 @@ class BoardItemResource(Resource):
         board = BoardModel.create_board(title=title, comment=comment)
 
         if board.get('Exception'):
-            return board, 400
+            abort(400, board['Exception'])
         return board, 201
 
     def get(self, title):
@@ -68,7 +68,7 @@ class BoardItemResource(Resource):
         board = BoardModel.select_board(title=title)
 
         if board.get('Exception'):
-            return board, 400
+            abort(400, board['Exception'])
         return board, 200
 
     def patch(self, title):
@@ -82,7 +82,7 @@ class BoardItemResource(Resource):
         board = BoardModel.update_board(title=title, alter_title=alter_title, comment=comment)
 
         if board.get('Exception'):
-            return board, 400
+            abort(400, board['Exception'])
         return board, 200
 
     # D
@@ -97,6 +97,6 @@ class BoardItemResource(Resource):
         board = BoardModel.delete_board(title=title)
 
         if board.get('Exception'):
-            return board, 400
+            abort(400, board['Exception'])
         return board, 200
 
