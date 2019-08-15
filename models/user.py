@@ -1,7 +1,7 @@
 from peewee import Model, CharField
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from . import DB
+from models import DB
 
 
 # 사용자를 정의하는 User 모델 정의

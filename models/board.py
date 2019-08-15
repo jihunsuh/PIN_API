@@ -1,7 +1,7 @@
 import datetime
 from peewee import Model, CharField, IntegrityError, DateTimeField
 
-from . import DB
+from models import DB
 
 
 # Pin을 모아두는 Board 모델 정의
@@ -17,7 +17,7 @@ class Board(Model):
     @classmethod
     def create_board(cls, title, comment):
         try:
-            board = cls.create(title=title, comment=comment)
+            cls.create(title=title, comment=comment)
             return {'message': 'board created successfully'}
         except IntegrityError:
             return {'Exception': 'This title already exists in our list'}
@@ -67,9 +67,5 @@ class Board(Model):
         return result
 
     @classmethod
-    def check_exist_with_title(cls, title):
-        try:
-            if_board_exists = cls().get(cls.title == title)
-            return True
-        except cls.DoesNotExist:
-            return False
+    def is_title_already_exist(cls, title):
+        return bool(cls.get_or_none(cls.title == title))

@@ -12,8 +12,9 @@ api = Api(app)
 
 
 @app.errorhandler(400)
-def custom400(error):
+def handle_400_error(error):
     response = {'message': error.description}
+    return response
 
 
 api.add_resource(common.Hello, '/hello')

@@ -1,7 +1,7 @@
 from peewee import Model, CharField, ForeignKeyField, TextField, DateTimeField, IntegrityError
 import datetime
-from . import DB
-from .board import Board as BoardModel
+from models import DB
+from models.board import Board as BoardModel
 
 
 # Pin 모델 정의
@@ -21,9 +21,9 @@ class Pin(Model):
     def create_pin(cls, name, img_url, description, board):
         try:
             # 입력된 board가 DB 안의 board 안에 있는지 확인
-            if_board_exists = BoardModel.get(BoardModel.title == board)
+            BoardModel.get(BoardModel.title == board)
 
-            pin = cls.create(name=name, img_url=img_url, description=description, board=board)
+            cls.create(name=name, img_url=img_url, description=description, board=board)
             return {'message': 'pin created successfully'}
         except BoardModel.DoesNotExist:
             return {'Exception': 'Given board does not exist in our Board title list'}
@@ -84,12 +84,8 @@ class Pin(Model):
         return result
 
     @classmethod
-    def check_exist_with_name(cls, name):
-        try:
-            if_pin_exists = cls().get(cls.name == name)
-            return True
-        except cls.DoesNotExist:
-            return False
+    def is_name_already_exist(cls, name):
+        return bool(cls.get_or_none(cls.name == name))
 
 
 # 원본 board의 삭제를 감지해 자동으로 Pin의 board를 default로 업데이트해주는 함수
