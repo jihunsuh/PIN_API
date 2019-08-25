@@ -1,4 +1,8 @@
-# Initial page
+---
+description: Access data and CRUD data.
+---
+
+# Data Page
 
 {% api-method method="get" host="https://HOST:PORT" path="/pin" %}
 {% api-method-summary %}
