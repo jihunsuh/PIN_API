@@ -27,4 +27,4 @@ api.add_resource(board.BoardItemResource, '/board/<title>')
 
 if __name__ == '__main__':
     initialize()
-    app.run(host=config.HOST, port=config.PORT)
+    app.run(host='localhost', port=8000)

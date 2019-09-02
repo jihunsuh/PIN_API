@@ -16,6 +16,8 @@ class PinResource(Resource):
         :return:
         """
         pin_list = PinModel.select_pin_list()
+        if not pin_list:
+            abort(400, "There's no pin in here")
         return pin_list, 200
 
     def post(self):
