@@ -2,7 +2,7 @@
 description: 핀의 정보를 수정하고 불러옵니다.
 ---
 
-# Pin Page
+# PIN\_API
 
 {% api-method method="get" host="https://localhost:8000" path="/pin" %}
 {% api-method-summary %}

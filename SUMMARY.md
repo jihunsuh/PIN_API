@@ -1,5 +1,10 @@
 # Table of contents
 
-* [Pin Page](README.md)
-* [Server Page](untitled.md)
+* [PIN\_API](README.md)
+* [Server Page](master.md)
+
+## DATABASE
+
+* [Pin](database/pin.md)
+* [Board](database/board.md)
 
