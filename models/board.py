@@ -25,7 +25,7 @@ class Board(Model):
     # R read board
     @classmethod
     def select_board(cls, title):
-        if cls.check_exist_with_title(title):
+        if cls.is_title_already_exist(title):
             board = cls().select().where(cls.title == title).get()
             return {'title': board.title,
                     'comment': board.comment,
@@ -36,9 +36,9 @@ class Board(Model):
     # U update board
     @classmethod
     def update_board(cls, title, alter_title, comment):
-        if cls.check_exist_with_title(title):
+        if cls.is_title_already_exist(title):
             # 만약 title을 변경할 예정인데, 변경할 title을 가진 board가 이미 있다면 exception 리턴
-            if title != alter_title and cls.check_exist_with_title(alter_title):
+            if title != alter_title and cls.is_title_already_exist(alter_title):
                 return {'Exception': 'Given altered title already exists in our Board title list'}
 
             board = cls().update(title=alter_title, comment=comment).where(cls.title == title)
