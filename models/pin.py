@@ -44,17 +44,20 @@ class Pin(Model):
 
     # U update pin
     @classmethod
-    def update_pin(cls, name, alter_name, img_url, description, board):
+    def update_pin(cls, name, alter_name, board, **data):
         try:
             # 입력된 board가 존재하는지, 입력된 name을 가진 pin이 존재하는지 확인
             if_pin_exists = cls.get(cls.name == name)
             if_board_exists = BoardModel.get(BoardModel.title == board)
 
             # 만약 name을 변경할 예정인데, 변경할 name을 가진 pin이 이미 있다면 exception 리턴
-            if name != alter_name and cls.check_exist_with_name(alter_name):
+            if name != alter_name and cls.is_name_already_exist(alter_name):
                 return {'Exception': 'Given name already exists in our Pin name list'}
 
-            pin = cls().update(name=alter_name, img_url=img_url, description=description, board=board).where(
+            if not data['img_url']:
+                data['img_url'] = if_pin_exists.img_url
+
+            pin = cls().update(name=alter_name, img_url=data['img_url'], description=['description'], board=board).where(
                 cls.name == name)
             pin.execute()
             return {'message': 'pin updated successfully'}

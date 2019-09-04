@@ -32,7 +32,10 @@ class PinResource(Resource):
             # [] 형태로 여러 개의 Pin Data를 전송할 때, 한꺼번에 POST가 가능하도록 처리
             pin = []
             for input_pin_data in data:
-                output_pin_data = PinModel.create_pin(**input_pin_data)
+                try:
+                    output_pin_data = PinModel.create_pin(**input_pin_data)
+                except TypeError:
+                    output_pin_data = {"Exception": "You should give us required data"}
                 if output_pin_data.get('Exception'):
                     status_code = 400
                 pin.append(output_pin_data)
@@ -73,13 +76,14 @@ class PinItemResource(Resource):
             data = request.get_json()
             if data['name']:
                 data['alter_name'] = data.pop('name')
+
+            if not BoardModel.select_board(data['board']):
+                return {'Exception': 'Given board does not exist in our Board title list'}, 400
+
+            pin = PinModel.update_pin(name=name, **data)
+
         except KeyError:
-            return {'Exception': 'You should give us data'}, 400
-
-        if not BoardModel.select_board(data['board']):
-            return {'Exception': 'Given board does not exist in our Board title list'}, 400
-
-        pin = PinModel.update_pin(name=name, **data)
+            return {'Exception': 'You should give us required data'}, 400
 
         if pin.get('Exception'):
             abort(400, pin['Exception'])

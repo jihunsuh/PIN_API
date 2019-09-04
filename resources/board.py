@@ -7,7 +7,7 @@ class BoardResource(Resource):
     """
     Board 테이블의 모든 정보에 접근합니다.
     """
-    def get(self, title):
+    def get(self):
         """
         DB 안의 모든 Board 정보들을 조회
         :return: Board 정보들
@@ -92,7 +92,7 @@ class BoardItemResource(Resource):
         :return:
         """
         if title == 'default':
-            return {'Exception': 'You cannot delete default board'}, 400
+            return {'Exception': 'You cannot delete default board'}, 405
 
         board = BoardModel.delete_board(title=title)
 
