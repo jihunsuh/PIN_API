@@ -4,10 +4,8 @@ from flask_restful import Api
 from resources import user, board, pin, common
 from models.database import initialize
 
-import config
-
 app = Flask(__name__)
-app.config.from_object('config.DefaultConfig')
+app.config.from_pyfile('config.cfg')
 api = Api(app)
 
 
