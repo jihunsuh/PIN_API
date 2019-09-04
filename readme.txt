@@ -1,10 +1,12 @@
-PIN_API
+# PIN_API
 =============
 
-### Python Flask를 기반으로 한 Restful Api입니다.
-### 데이터베이스 언어로 Peewee를 이용하고, flask_bcrypt를 이용해 패스워드를 암호화합니다.
-### JWT 형식의 토큰 인증을 추가할 예정입니다.
-### 모티브는 핀터레스트로, 이미지를 저장하는 Pin 모델과 Pin의 묶음인 Board 모델이 있습니다.
+API 문서 주소 : https://jihunsuh12.gitbook.io/ pinapi
+
+Python Flask를 기반으로 한 Restful Api입니다.
+데이터베이스 언어로 Peewee를 이용하고, flask_bcrypt를 이용해 패스워드를 암호화합니다.
+JWT 형식의 토큰 인증을 추가할 예정입니다.
+모티브는 핀터레스트로, 이미지를 저장하는 Pin 모델과 Pin의 묶음인 Board 모델이 있습니다.
 
 1. /hello
 GET : 'name' 파라미터를 받고 {'name': name}을 json string 형식으로 리턴합니다. 파라미터 시험용
