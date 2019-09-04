@@ -1,7 +1,7 @@
 # PIN_API
 =============
 
-API 문서 주소 : https://jihunsuh12.gitbook.io/ pinapi
+API 문서 주소 : <https://jihunsuh12.gitbook.io/ pinapi>
 
 Python Flask를 기반으로 한 Restful Api입니다.
 데이터베이스 언어로 Peewee를 이용하고, flask_bcrypt를 이용해 패스워드를 암호화합니다.
