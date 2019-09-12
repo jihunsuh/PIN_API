@@ -1,6 +1,7 @@
 from flask import request, abort
 from flask_restful import Resource
 from models.board import Board as BoardModel
+from peewee import IntegrityError
 
 
 class BoardResource(Resource):
@@ -20,27 +21,27 @@ class BoardResource(Resource):
         입력한 정보로 새 Board를 만들어 DB 안에 삽입
         :return:
         """
-        data = request.get_json()
-        status_code = 200
+        data = request.json()
+        status_code = 201
 
         if isinstance(data, list):
             # [] 형태로 여러 개의 Board Data를 전송할 때, 한꺼번에 POST가 가능하도록 처리
-            board = []
+            response_payload = []
             for input_board_data in data:
                 output_board_data = BoardModel.create_board(**input_board_data)
                 if output_board_data.get('Exception'):
                     status_code = 400
-                board.append(output_board_data)
+                response_payload.append(output_board_data)
         else:
             try:
-                board = BoardModel.create_board(**data)
+                response_payload= BoardModel.create_board(**data)
             except KeyError:
                 return {'Exception': "You should give us required data"}, 400
 
-            if board.get('Exception'):
+            if response_payload.get('Exception'):
                 status_code = 400
 
-        return board, status_code
+        return response_payload, status_code
 
 
 class BoardItemResource(Resource):
@@ -53,8 +54,10 @@ class BoardItemResource(Resource):
         :return:
         """
         comment = request.args.get('comment', title)
-
-        board = BoardModel.create_board(title=title, comment=comment)
+        try:
+            board = BoardModel.create_board(title=title, comment=comment)
+        except IntegrityError:
+            abort(400, 'This title already exists in our list')
 
         if board.get('Exception'):
             abort(400, board['Exception'])

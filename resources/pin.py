@@ -25,7 +25,7 @@ class PinResource(Resource):
         입력한 정보로 새 Pin을 만들어 DB 안에 삽입
         :return:
         """
-        data = request.get_json()
+        data = request.json()
         status_code = 201
 
         if isinstance(data, list):
@@ -73,7 +73,7 @@ class PinItemResource(Resource):
         :return:
         """
         try:
-            data = request.get_json()
+            data = request.json()
             if data['name']:
                 data['alter_name'] = data.pop('name')
 

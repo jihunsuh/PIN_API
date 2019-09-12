@@ -1,5 +1,5 @@
 import datetime
-from peewee import Model, CharField, IntegrityError, DateTimeField
+from peewee import Model, CharField, DateTimeField
 
 from models import DB
 
@@ -16,11 +16,8 @@ class Board(Model):
     # C create board
     @classmethod
     def create_board(cls, title, comment):
-        try:
-            cls.create(title=title, comment=comment)
-            return {'message': 'board created successfully'}
-        except IntegrityError:
-            return {'Exception': 'This title already exists in our list'}
+        cls.create(title=title, comment=comment)
+        return {'message': 'board created successfully'}
 
     # R read board
     @classmethod
