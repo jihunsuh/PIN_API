@@ -15,10 +15,10 @@ class PinResource(Resource):
         DB 안의 모든 Pin 정보들을 조회
         :return:
         """
-        pin_list = PinModel.select_pin_list()
-        if not pin_list:
+        output_pin_list = PinModel.select_pin_list()
+        if not output_pin_list:
             abort(400, "There's no pin in here")
-        return pin_list, 200
+        return output_pin_list, 200
 
     def post(self):
         """
@@ -28,11 +28,14 @@ class PinResource(Resource):
         data = request.json
 
         try:
-            pin = PinModel.create_pin(**data)
+            output_pin = PinModel.create_pin(**data)
         except KeyError:
             abort(400, "You should give us required data")
 
-        return pin, 201
+        if output_pin.get('Exception'):
+            abort(400, output_pin['Exception'])
+
+        return output_pin, 201
 
 
 class PinListResource(Resource):
@@ -46,17 +49,20 @@ class PinListResource(Resource):
         :return:
         """
         data = request.json
+        status_code = 201
+        response_payload = []
 
         if isinstance(data, list):
             # [] 형태로 여러 개의 Board Data를 전송할 때, 한꺼번에 POST가 가능하도록 처리
-            response_payload = []
-            for input_board_data in data:
-                output_board_data = PinModel.create_pin(**input_board_data)
-                response_payload.append(output_board_data)
+            for input_pin_data in data:
+                output_pin_data = PinModel.create_pin(**input_pin_data)
+                if output_pin_data.get('Exception'):
+                    status_code = 400
+                response_payload.append(output_pin_data)
         else:
             abort(400, "You should give us 'list' of data")
 
-        return response_payload, 201
+        return response_payload, status_code
 
 
 class PinItemResource(Resource):
@@ -69,8 +75,11 @@ class PinItemResource(Resource):
         주어진 name을 가진 Pin의 정보를 반환
         :return:
         """
-        pin = PinModel.select_pin(name=name)
-        return pin, 200
+        output_pin = PinModel.select_pin(name=name)
+
+        if output_pin.get('Exception'):
+            abort(400, output_pin['Exception'])
+        return output_pin, 200
 
     def patch(self, name):
         """
@@ -85,18 +94,24 @@ class PinItemResource(Resource):
             if not BoardModel.select_board(data['board']):
                 abort(400, 'Given board does not exist in our Board title list')
 
-            pin = PinModel.update_pin(name=name, **data)
+            output_pin = PinModel.update_pin(name=name, **data)
 
         except KeyError:
             abort(400, 'You should give us required data')
 
-        return pin, 200
+        if output_pin.get('Exception'):
+            abort(400, output_pin['Exception'])
+
+        return output_pin, 200
 
     def delete(self, name):
         """
         입력한 name의 Pin 정보를 삭제
         :return:
         """
-        pin = PinModel.delete_pin(name=name)
-        return pin, 200
+        output_pin = PinModel.delete_pin(name=name)
+
+        if output_pin.get('Exception'):
+            abort(400, output_pin['Exception'])
+        return output_pin, 200
 

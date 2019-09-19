@@ -13,8 +13,8 @@ class BoardResource(Resource):
         DB 안의 모든 Board 정보들을 조회
         :return: Board 정보들
         """
-        board_list = BoardModel.select_board_list()
-        return board_list, 200
+        output_board_list = BoardModel.select_board_list()
+        return output_board_list, 200
 
     def post(self):
         """
@@ -22,13 +22,17 @@ class BoardResource(Resource):
         :return:
         """
         data = request.json
+        status_code = 201
 
         try:
-            response_payload = BoardModel.create_board(**data)
+            output_board = BoardModel.create_board(**data)
         except KeyError:
             abort(400, "You should give us required data")
 
-        return response_payload, 201
+        if output_board.get('Exception'):
+            status_code = 400
+
+        return output_board, status_code
 
 
 class BoardListResource(Resource):
@@ -42,17 +46,20 @@ class BoardListResource(Resource):
         :return:
         """
         data = request.json
+        status_code = 201
+        response_payload = []
 
         if isinstance(data, list):
             # [] 형태로 여러 개의 Board Data를 전송할 때, 한꺼번에 POST가 가능하도록 처리
-            response_payload = []
             for input_board_data in data:
                 output_board_data = BoardModel.create_board(**input_board_data)
+                if output_board_data['Exception']:
+                    status_code = 400
                 response_payload.append(output_board_data)
         else:
             abort(400, "You should give us 'list' of data")
 
-        return response_payload, 201
+        return response_payload, status_code
 
 
 class BoardItemResource(Resource):
@@ -65,8 +72,10 @@ class BoardItemResource(Resource):
         주어진 title을 가진 Board의 정보를 반환
         :return:
         """
-        board = BoardModel.select_board(title=title)
-        return board, 200
+        output_board = BoardModel.select_board(title=title)
+        if output_board.get('Exception'):
+            abort(400, output_board['Exception'])
+        return output_board, 200
 
     def patch(self, title):
         """
@@ -81,12 +90,15 @@ class BoardItemResource(Resource):
             if not BoardModel.select_board(data['board']):
                 abort(400, 'Given board does not exist in our Board title list')
 
-            board = BoardModel.update_board(title=title, **data)
+            output_board = BoardModel.update_board(title=title, **data)
+
+            if output_board.get('Exception'):
+                abort(400, output_board['Exception'])
 
         except KeyError:
             abort(400, 'You should give us required data')
 
-        return board, 200
+        return output_board, 200
 
     # D
     def delete(self, title):
@@ -97,6 +109,9 @@ class BoardItemResource(Resource):
         if title == 'default':
             abort(405, 'You cannot delete default board')
 
-        board = BoardModel.delete_board(title=title)
-        return board, 200
+        output_board = BoardModel.delete_board(title=title)
+
+        if output_board.get('Exception'):
+            abort(400, output_board['Exception'])
+        return output_board, 200
 
