@@ -1,5 +1,6 @@
+from flask import abort
 import datetime
-from peewee import Model, CharField, DateTimeField
+from peewee import Model, CharField, DateTimeField, IntegrityError
 
 from models import DB
 
@@ -16,8 +17,11 @@ class Board(Model):
     # C create board
     @classmethod
     def create_board(cls, title, comment):
-        cls.create(title=title, comment=comment)
-        return {'message': 'board created successfully'}
+        try:
+            cls.create(title=title, comment=comment)
+            return {'message': 'board created successfully'}
+        except IntegrityError:
+            abort(400, 'This title already exists in our list')
 
     # R read board
     @classmethod
@@ -28,7 +32,7 @@ class Board(Model):
                     'comment': board.comment,
                     'created_at': board.created_at}
         else:
-            return {'Exception': 'Given title does not exist in our Board title list'}
+            abort(400, 'Given title does not exist in our Board title list')
 
     # U update board
     @classmethod
@@ -42,7 +46,7 @@ class Board(Model):
             board.execute()
             return {'message': 'pin updated successfully'}
         else:
-            return {'Exception': 'Given title does not exist in our Board title list'}
+            abort(400, 'Given title does not exist in our Board title list')
 
     # D delete board
     @classmethod
@@ -52,7 +56,7 @@ class Board(Model):
             board.delete_instance()
             return {'message': 'board deleted successfully'}
         except cls.DoesNotExist:
-            return {'Exception': 'Given title does not exist in our Board title list'}
+            abort(400, 'Given title does not exist in our Board title list')
 
     @classmethod
     def select_board_list(cls):

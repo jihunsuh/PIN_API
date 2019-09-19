@@ -1,3 +1,4 @@
+from flask import abort
 from peewee import Model, CharField, ForeignKeyField, TextField, DateTimeField, IntegrityError
 import datetime
 from models import DB
@@ -26,9 +27,9 @@ class Pin(Model):
             cls.create(name=name, img_url=img_url, description=description, board=board)
             return {'message': 'pin created successfully'}
         except BoardModel.DoesNotExist:
-            return {'Exception': 'Given board does not exist in our Board title list'}
+            abort(400, 'Given board does not exist in our Board title list')
         except IntegrityError:
-            return {'Exception': 'This name already exists in our list'}
+            abort(400, 'This name already exists in our list')
 
     # R read pin
     @classmethod
@@ -40,7 +41,7 @@ class Pin(Model):
                     'description': pin.description,
                     'board': title_confirm_board_null(pin)}
         except cls.DoesNotExist:
-            return {'Exception': 'Given name does not exist in our Pin name list'}
+            abort(400, 'Given name does not exist in our Pin name list')
 
     # U update pin
     @classmethod
@@ -59,9 +60,9 @@ class Pin(Model):
             pin.execute()
             return {'message': 'pin updated successfully'}
         except cls.DoesNotExist:
-            return {'Exception': 'Given name does not exist in our Pin name list'}
+            abort(400, 'Given name does not exist in our Pin name list')
         except BoardModel.DoesNotExist:
-            return {'Exception': 'Given board does not exist in our Board title list'}
+            abort(400, 'Given board does not exist in our Board title list')
 
     # D delete pin
     @classmethod
@@ -71,7 +72,7 @@ class Pin(Model):
             pin.delete_instance()
             return {'message': 'pin deleted successfully'}
         except cls.DoesNotExist:
-            return {'Exception': 'Given name does not exist in our Pin name list'}
+            abort(400, 'Given name does not exist in our Pin name list')
 
     @classmethod
     def select_pin_list(cls):

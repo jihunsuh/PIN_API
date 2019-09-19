@@ -25,30 +25,38 @@ class PinResource(Resource):
         입력한 정보로 새 Pin을 만들어 DB 안에 삽입
         :return:
         """
-        data = request.json()
-        status_code = 201
+        data = request.json
+
+        try:
+            pin = PinModel.create_pin(**data)
+        except KeyError:
+            abort(400, "You should give us required data")
+
+        return pin, 201
+
+
+class PinListResource(Resource):
+    """
+    /pin-list
+    Pin 테이블에 데이터 리스트를 넣습니다.
+    """
+    def post(self):
+        """
+        입력한 리스트들을 모두 Pin 테이블에 저장
+        :return:
+        """
+        data = request.json
 
         if isinstance(data, list):
-            # [] 형태로 여러 개의 Pin Data를 전송할 때, 한꺼번에 POST가 가능하도록 처리
-            pin = []
-            for input_pin_data in data:
-                try:
-                    output_pin_data = PinModel.create_pin(**input_pin_data)
-                except TypeError:
-                    output_pin_data = {"Exception": "You should give us required data"}
-                if output_pin_data.get('Exception'):
-                    status_code = 400
-                pin.append(output_pin_data)
+            # [] 형태로 여러 개의 Board Data를 전송할 때, 한꺼번에 POST가 가능하도록 처리
+            response_payload = []
+            for input_board_data in data:
+                output_board_data = PinModel.create_pin(**input_board_data)
+                response_payload.append(output_board_data)
         else:
-            try:
-                pin = PinModel.create_pin(**data)
-            except KeyError:
-                return {'Exception': "You should give us required data"}, 400
+            abort(400, "You should give us 'list' of data")
 
-            if pin.get('Exception'):
-                abort(400, pin['Exception'])
-
-        return pin, status_code
+        return response_payload, 201
 
 
 class PinItemResource(Resource):
@@ -62,9 +70,6 @@ class PinItemResource(Resource):
         :return:
         """
         pin = PinModel.select_pin(name=name)
-
-        if pin.get('Exception'):
-            abort(400, pin['Exception'])
         return pin, 200
 
     def patch(self, name):
@@ -73,20 +78,18 @@ class PinItemResource(Resource):
         :return:
         """
         try:
-            data = request.json()
+            data = request.json
             if data['name']:
                 data['alter_name'] = data.pop('name')
 
             if not BoardModel.select_board(data['board']):
-                return {'Exception': 'Given board does not exist in our Board title list'}, 400
+                abort(400, 'Given board does not exist in our Board title list')
 
             pin = PinModel.update_pin(name=name, **data)
 
         except KeyError:
-            return {'Exception': 'You should give us required data'}, 400
+            abort(400, 'You should give us required data')
 
-        if pin.get('Exception'):
-            abort(400, pin['Exception'])
         return pin, 200
 
     def delete(self, name):
@@ -95,8 +98,5 @@ class PinItemResource(Resource):
         :return:
         """
         pin = PinModel.delete_pin(name=name)
-
-        if pin.get('Exception'):
-            abort(400, pin['Exception'])
         return pin, 200
 
