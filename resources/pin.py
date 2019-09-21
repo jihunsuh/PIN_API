@@ -96,13 +96,13 @@ class PinItemResource(Resource):
 
             output_pin = PinModel.update_pin(name=name, **data)
 
+            if output_pin.get('Exception'):
+                abort(400, output_pin['Exception'])
+
+            return output_pin, 200
+
         except KeyError:
             abort(400, 'You should give us required data')
-
-        if output_pin.get('Exception'):
-            abort(400, output_pin['Exception'])
-
-        return output_pin, 200
 
     def delete(self, name):
         """
