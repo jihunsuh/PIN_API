@@ -1,46 +1,59 @@
-from peewee import Model, CharField
-from werkzeug.security import generate_password_hash, check_password_hash
-
-from models import DB
+from db import db
+import datetime
 
 
-# 사용자를 정의하는 User 모델 정의
-class User(Model):
-    username = CharField(primary_key=True)
-    email = CharField(unique=True)
-    password = CharField()
+class PinModel(db.Model):
+    __tablename__ = 'pins'
 
-    class Meta:
-        database = DB
+    id = db.Column(db.Integer, primary_key=True)
+    img_url = db.Column(db.String(200))
+    description = db.Column(db.String(200))
+    board_id = db.Column(db.Integer, db.ForeignKey('boards.id'),
+                         nullable=False)
+    board = db.relationship('BoardModel',
+                            backref=db.backref('pins', lazy=True))
+    createdAt = db.Column(db.DateTime)
 
-    # 사용자 정보로 User 생성
+    def __init__(self, img_url, description, board_id):
+        self.img_url = img_url
+        self.description = description
+        self.board_id = board_id
+        self.createdAt = datetime.datetime.now()
+
+    def json(self):
+        return {
+            'id': self.id,
+            'img_url': self.img_url,
+            'description': self.description,
+            'board_id': self.board_id,
+            'createdAt': str(self.createdAt)
+        }
+
     @classmethod
-    def create_user(cls, username, email, password):
-        email = email.lower()
-        try:
-            cls.select().where(
-                (cls.email == email) | (cls.username == username)
-            ).get()
-        except cls.DoesNotExist:
-            # 주어진 password를 werkzeug로 암호화
-            user = cls.create(username=username, email=email, password=generate_password_hash(password).decode('utf-8'))
-            return {'username': user.username,
-                    'email': user.email}
-        else:
-            return {'Exception': 'this user already exists'}
+    def findOne(cls, **filter):
+        return cls.query.filter_by(**filter).first()
 
     @classmethod
-    def select_user(cls, username, password):
-        try:
-            user = cls().select().where(cls.username == username).get()
-            # 주어진 password를 확인
-            if check_password_hash(user.password, password):
-                return {'username': user.username,
-                        'email': user.email,
-                        'password': password}
-            else:
-                return {'Exception': 'Your password does not match'}
-        except cls.DoesNotExist:
-            return {'Exception': 'Your id does not exist in our User Id list'}
+    def findAll(cls):
+        return cls.query.all()
 
+    def create(self):
+        db.session.add(self)
+        db.session.commit()
 
+    def update(self, **data):
+        for record in data:
+            if record in ['img_url', 'description', 'board_id']:
+                setattr(self, record, data[record])
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def create_bulk(cls, board_datas):
+        for board_data in board_datas:
+            board = cls(**board_data)
+            db.session.add(board)
+        db.session.commit()

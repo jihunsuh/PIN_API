@@ -1,71 +1,57 @@
+from db import db
 import datetime
-from peewee import Model, CharField, DateTimeField, IntegrityError
-
-from models import DB
 
 
-# Pin을 모아두는 Board 모델 정의
-class Board(Model):
-    title = CharField(max_length=20, primary_key=True)
-    comment = CharField(max_length=200)
-    created_at = DateTimeField(default=datetime.datetime.now())
+class BoardModel(db.Model):
+    __tablename__ = 'boards'
 
-    class Meta:
-        database = DB
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(80), nullable=False)
+    comment = db.Column(db.String(200), nullable=False)
+    createdAt = db.Column(db.DateTime)
+    updatedAt = db.Column(db.DateTime)
 
-    # C create board
-    @classmethod
-    def create_board(cls, title, comment):
-        try:
-            cls.create(title=title, comment=comment)
-            return {'message': 'board created successfully'}
-        except IntegrityError:
-            return {'Exception': 'This title already exists in our list'}
+    def __init__(self, title, comment):
+        self.title = title
+        self.comment = comment
+        self.createdAt = datetime.datetime.now()
+        self.updatedAt = datetime.datetime.now()
 
-    # R read board
-    @classmethod
-    def select_board(cls, title):
-        if cls.is_title_already_exist(title):
-            board = cls().select().where(cls.title == title).get()
-            return {'title': board.title,
-                    'comment': board.comment,
-                    'created_at': board.created_at}
-        else:
-            return {'Exception': 'Given title does not exist in our Board title list'}
-
-    # U update board
-    @classmethod
-    def update_board(cls, title, alter_title, comment):
-        if cls.is_title_already_exist(title):
-            # 만약 title을 변경할 예정인데, 변경할 title을 가진 board가 이미 있다면 exception 리턴
-            if title != alter_title and cls.is_title_already_exist(alter_title):
-                return {'Exception': 'Given altered title already exists in our Board title list'}
-
-            board = cls().update(title=alter_title, comment=comment).where(cls.title == title)
-            board.execute()
-            return {'message': 'pin updated successfully'}
-        else:
-            return {'Exception': 'Given title does not exist in our Board title list'}
-
-    # D delete board
-    @classmethod
-    def delete_board(cls, title):
-        try:
-            board = cls().get(cls.title == title)
-            board.delete_instance()
-            return {'message': 'board deleted successfully'}
-        except cls.DoesNotExist:
-            return {'Exception': 'Given title does not exist in our Board title list'}
+    def json(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'comment': self.comment,
+            'createdAt': str(self.createdAt),
+            'updatedAt': str(self.updatedAt)
+        }
 
     @classmethod
-    def select_board_list(cls):
-        result = []
-        for board in cls.select():
-            result.append({'title': board.title,
-                           'comment': board.comment,
-                           'created_at': board.created_at})
-        return result
+    def findOne(cls, **filter):
+        return cls.query.filter_by(**filter).first()
 
     @classmethod
-    def is_title_already_exist(cls, title):
-        return bool(cls.get_or_none(cls.title == title))
+    def findAll(cls):
+        return cls.query.all()
+
+    def create(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self, **data):
+        for record in data:
+            if record in ['title', 'comment']:
+                setattr(self, record, data[record])
+        setattr(self, 'updatedAt', datetime.datetime.now())
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def create_bulk(cls, board_datas):
+        for board_data in board_datas:
+            board = cls(**board_data)
+            db.session.add(board)
+        db.session.commit()
