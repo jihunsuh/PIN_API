@@ -1,117 +1,93 @@
 from flask import request, abort
 from flask_restful import Resource
-from models.pin import Pin as PinModel
-from models.board import Board as BoardModel
-
-
-class PinResource(Resource):
-    """
-    name에 해당하는 Pin 정보를 조회
-    name이 list일 경우 DB 안의 모든 Pin 정보들을 조회
-    """
-
-    def get(self):
-        """
-        DB 안의 모든 Pin 정보들을 조회
-        :return:
-        """
-        output_pin_list = PinModel.select_pin_list()
-        if not output_pin_list:
-            abort(400, "There's no pin in here")
-        return output_pin_list, 200
-
-    def post(self):
-        """
-        입력한 정보로 새 Pin을 만들어 DB 안에 삽입
-        :return:
-        """
-        data = request.json
-
-        try:
-            output_pin = PinModel.create_pin(**data)
-        except KeyError:
-            abort(400, "You should give us required data")
-
-        if output_pin.get('Exception'):
-            abort(400, output_pin['Exception'])
-
-        return output_pin, 201
-
-
-class PinListResource(Resource):
-    """
-    /pin-list
-    Pin 테이블에 데이터 리스트를 넣습니다.
-    """
-    def post(self):
-        """
-        입력한 리스트들을 모두 Pin 테이블에 저장
-        :return:
-        """
-        data = request.json
-        status_code = 201
-        response_payload = []
-
-        if isinstance(data, list):
-            # [] 형태로 여러 개의 Board Data를 전송할 때, 한꺼번에 POST가 가능하도록 처리
-            for input_pin_data in data:
-                output_pin_data = PinModel.create_pin(**input_pin_data)
-                if output_pin_data.get('Exception'):
-                    status_code = 400
-                response_payload.append(output_pin_data)
-        else:
-            abort(400, "You should give us 'list' of data")
-
-        return response_payload, status_code
+from models.pin import PinModel
+from sqlalchemy import exc
 
 
 class PinItemResource(Resource):
-    """
-    Pin 테이블의 정보에 CRUD 형식으로 접근합니다.
-    """
-
-    def get(self, name):
-        """
-        주어진 name을 가진 Pin의 정보를 반환
-        :return:
-        """
-        output_pin = PinModel.select_pin(name=name)
-
-        if output_pin.get('Exception'):
-            abort(400, output_pin['Exception'])
-        return output_pin, 200
-
-    def patch(self, name):
-        """
-        입력한 정보로 주어진 name을 가진 Pin을 업데이트
-        :return:
-        """
+    # GET /pins/<id>
+    def get(self, id):
         try:
-            data = request.json
-            if data['name']:
-                data['alter_name'] = data.pop('name')
+            pin = PinModel.findOne(id=id)
 
-            if not BoardModel.select_board(data['board']):
-                abort(400, 'Given board does not exist in our Board title list')
+            if pin is None:
+                raise Exception("Pin not found")
 
-            output_pin = PinModel.update_pin(name=name, **data)
+            return {"data": pin.json()}, 200
+        except Exception as e:
+            return {'Exception': str(e)}, 500
 
-            if output_pin.get('Exception'):
-                abort(400, output_pin['Exception'])
+    # PUT /pins/<id>
+    def put(self, id):
+        try:
+            body = request.json
 
-            return output_pin, 200
+            pin = PinModel.findOne(id=id)
+            if pin is None:
+                raise Exception("Pin not found")
 
-        except KeyError:
-            abort(400, 'You should give us required data')
+            pin.update(**body)
 
-    def delete(self, name):
-        """
-        입력한 name의 Pin 정보를 삭제
-        :return:
-        """
-        output_pin = PinModel.delete_pin(name=name)
+            return {'message': "successfully updated"}, 200
+        except exc.IntegrityError:
+            return {'Exception': "Unknown board_id in your body"}
+        except Exception as e:
+            raise Exception(e)
+            return {'Exception': str(e)}, 500
 
-        if output_pin.get('Exception'):
-            abort(400, output_pin['Exception'])
-        return output_pin, 200
+    # DELETE /pins/<id>
+    def delete(self, id):
+        try:
+            pin = PinModel.findOne(id=id)
+            if pin is None:
+                raise Exception("Pin not found")
 
+            pin.delete()
+
+            return {'message': "successfully deleted"}, 200
+        except Exception as e:
+            return {'Exception': str(e)}, 500
+
+
+class PinListResource(Resource):
+    # GET /pins
+    def get(self):
+        try:
+            pins = PinModel.findAll()
+
+            def getJson(model):
+                return model.json()
+
+            return {"data": list(map(getJson, pins))}, 200
+        except Exception as e:
+            raise Exception(e)
+            return {'Exception': str(e)}, 500
+
+    # POST /pins
+    def post(self):
+        try:
+            body = request.json
+            pin = PinModel(**body)
+            pin.create()
+
+            return {'message': "successfully created"}, 200
+        except exc.IntegrityError:
+            return {'Exception': "Unknown board_id in your body"}
+        except Exception as e:
+            return {'Exception': str(e)}, 500
+
+
+class PinBulkResource(Resource):
+    # POST /pins/bulk
+    def post(self):
+        try:
+            body = request.json
+
+            if not isinstance(body, list):
+                raise Exception("request body is not list type data")
+
+            PinModel.create_bulk(body)
+
+            return {'message': "successfully created"}, 200
+        except Exception as e:
+            return {'Exception': str(e)}, 500
