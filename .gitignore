@@ -1,6 +1,8 @@
 # Created by https://www.gitignore.io/api/macos,flask,python,pycharm
 # Edit at https://www.gitignore.io/?templates=macos,flask,python,pycharm
 
+config.py
+
 ### Flask ###
 instance/*
 !instance/.gitignore
