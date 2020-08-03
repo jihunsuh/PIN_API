@@ -56,8 +56,8 @@ class PinModel(db.Model):
         db.session.commit()
 
     @classmethod
-    def create_bulk(cls, board_datas):
-        for board_data in board_datas:
-            board = cls(**board_data)
-            db.session.add(board)
+    def create_bulk(cls, pin_datas):
+        for pin_data in pin_datas:
+            pin = cls(**pin_data)
+            db.session.add(pin)
         db.session.commit()

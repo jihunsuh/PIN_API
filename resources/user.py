@@ -1,36 +1,41 @@
 from flask import request, abort
 from flask_restful import Resource
-from models.user import User as UserModel
+from models.user import UserModel
+from flask_jwt import jwt_required
+from hashing import bcrypt
 
 
-# /signup
-class UserSignUpResource(Resource):
-    """
-    입력한 정보로 유저를 생성합니다.
-    """
+class SignUpResource(Resource):
+    # POST /signup
     def post(self):
-        data = request.json
         try:
-            user = UserModel.create_user(**data)
-        except KeyError:
-            abort(400, 'You should give us username or password')
+            body = request.json
 
-        return user, 201
+            hashed_password = bcrypt.generate_password_hash(body['password'])
+
+            body['password'] = hashed_password
+
+            user = UserModel(**body)
+            user.create()
+
+            return {'message': "Welcome to PIN_API"}, 200
+        except Exception as e:
+            return {'Exception': str(e)}, 500
 
 
-# /auth
-class UserAuthResource(Resource):
-    def get(self):
-        """
-        입력한 정보가 유저 테이블 안에 있는지를 확인하고 그 결과를 리턴합니다.
-        :return:
-        """
-        data = request.json
-        try:
-            user = UserModel.select_user(**data)
-        except KeyError:
-            abort(400, 'You should give us username or password')
+# class LoginResource(Resource):
+#     # POST /login
+#     def post(self):
+#         try:
+#             body = request.json
+#             if not body['password']:
+#                 raise Exception("Password Not Found")
 
-        if user.get('Exception'):
-            return user, 400
-        return user, 200
+#             user = UserModel.findOne(**body)
+
+#             if not user:
+#                 raise Exception("User Not Found")
+
+#             return {'message': "successfully logined", 'data': user.json()}, 200
+#         except Exception as e:
+#             return {'Exception': str(e)}, 500

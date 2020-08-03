@@ -2,31 +2,31 @@ from db import db
 import datetime
 
 
-class PinModel(db.Model):
-    __tablename__ = 'pins'
+class UserModel(db.Model):
+    __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    img_url = db.Column(db.String(200))
-    description = db.Column(db.String(200))
-    board_id = db.Column(db.Integer, db.ForeignKey('boards.id'),
-                         nullable=False)
-    board = db.relationship('BoardModel',
-                            backref=db.backref('pins', lazy=True))
+    email = db.Column(db.String(80))
+    username = db.Column(db.String(80))
+    password = db.Column(db.String(200))
     createdAt = db.Column(db.DateTime)
+    updatedAt = db.Column(db.DateTime)
 
-    def __init__(self, img_url, description, board_id):
-        self.img_url = img_url
-        self.description = description
-        self.board_id = board_id
+    def __init__(self, email, username, password):
+        self.email = email
+        self.username = username
+        self.password = password
         self.createdAt = datetime.datetime.now()
+        self.updatedAt = datetime.datetime.now()
 
     def json(self):
         return {
             'id': self.id,
-            'img_url': self.img_url,
-            'description': self.description,
-            'board_id': self.board_id,
-            'createdAt': str(self.createdAt)
+            'email': self.email,
+            'username': self.username,
+            'password': self.password,
+            'createdAt': str(self.createdAt),
+            'updatedAt': str(self.updatedAt)
         }
 
     @classmethod
@@ -43,7 +43,7 @@ class PinModel(db.Model):
 
     def update(self, **data):
         for record in data:
-            if record in ['img_url', 'description', 'board_id']:
+            if record in ['email', 'username', 'password']:
                 setattr(self, record, data[record])
         db.session.commit()
 
@@ -52,8 +52,8 @@ class PinModel(db.Model):
         db.session.commit()
 
     @classmethod
-    def create_bulk(cls, board_datas):
-        for board_data in board_datas:
-            board = cls(**board_data)
-            db.session.add(board)
+    def create_bulk(cls, user_datas):
+        for user_data in user_datas:
+            user = cls(**user_data)
+            db.session.add(user)
         db.session.commit()
